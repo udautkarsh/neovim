@@ -168,6 +168,20 @@ keymap.set("n", "<leader>ze", ":CopilotChatExplain<CR>", {desc = "Explain code"}
 keymap.set("n", "<leader>zi", ":CopilotChatInfo<CR>", {desc = "Show copilot info"})
 keymap.set("n", "<leader>zq", ":CopilotChatQuickPick<CR>", {desc = "Quick pick copilot suggestions"})
 keymap.set("n", "<leader>zr", ":CopilotChatRefresh<CR>", {desc = "Refresh copilot suggestions"})
+keymap.set("n", "<leader>zs", ":CopilotChatSuggest<CR>", {desc = "Suggest code with copilot"})
+keymap.set("n", "<leader>zt", ":CopilotChatToggle<CR>", {desc = "Toggle copilot chat"})
+keymap.set("n", "<leader>zv", ":CopilotChatView<CR>", {desc = "View copilot chat"})
+keymap.set("n", "<leader>zx", ":CopilotChatDismiss<CR>", {desc = "Dismiss copilot chat"})
+keymap.set("n", "<leader>zy", ":CopilotChatCopy<CR>", {desc = "Copy copilot chat"})
+keymap.set("n", "<leader>zj", ":CopilotChatJump<CR>", {desc = "Jump to copilot chat"})
+keymap.set("n", "<leader>zk", ":CopilotChatClose<CR>", {desc = "Close copilot chat"})
+keymap.set("n", "<leader>zl", ":CopilotChatList<CR>", {desc = "List copilot chats"})
+keymap.set("n", "<leader>zm", ":CopilotChatMerge<CR>", {desc = "Merge copilot chat suggestions"})
+keymap.set("n", "<leader>zn", ":CopilotChatNew<CR>", {desc = "Start a new copilot chat"})
+keymap.set("n", "<leader>zo", ":CopilotChatOpen<CR>", {desc = "Open copilot chat"})
+keymap.set("n", "<leader>zp", ":CopilotChatPaste<CR>", {desc = "Paste copilot chat suggestion"})
+keymap.set("n", "<leader>zd", ":CopilotChatDocs<CR>", {desc = "Document copilot chat"})
+
 
 
 -- Copilot keymaps

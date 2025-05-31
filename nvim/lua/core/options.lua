@@ -55,7 +55,7 @@ opt.foldmethod = "expr"
 opt.foldexpr = "nvim_treesitter#foldexpr()" -- Utilize Treesitter folds
 
 -- Enable spell check for all buffers by default
-vim.opt.spell = true
+vim.opt.spell = false
 vim.opt.spelllang = 'en_us'
 
 -- Enable mouse support
