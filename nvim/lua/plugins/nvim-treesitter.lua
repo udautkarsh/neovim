@@ -16,6 +16,20 @@ return {
     auto_install = true, -- automatically install syntax support when entering new file type buffer
     ensure_installed = {
       'lua',
+      'python',
+      'javascript',
+      'typescript',
+      'html',
+      'css',
+      'json',
+      'yaml',
+      'bash',
+      'markdown',
+      'markdown_inline',
+      'vim',
+      'gitcommit',
+      'git_rebase',
+      'diff',
     },
   },
   config = function (_, opts)
