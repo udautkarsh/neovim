@@ -29,9 +29,6 @@ opt.termguicolors = true
 opt.background = "dark"
 opt.signcolumn = "yes"
 opt.showmode = false
-vim.diagnostic.config {
-  float = { border = "rounded" }, -- add border to diagnostic popups
-}
 
 -- Backspace
 opt.backspace = "indent,eol,start"
@@ -60,3 +57,39 @@ vim.opt.spelllang = 'en_us'
 
 -- Enable mouse support
 opt.mouse = "a" -- Enable mouse support in all modes
+
+
+
+-- vim diagnostic configurations
+
+
+vim.diagnostic.config({
+  float = { 
+    border = "rounded",
+    source = "always", -- Show source in diagnostic popup window
+    header = "", -- Remove "Diagnostics" header
+    prefix = "", -- Remove prefix from diagnostic message
+  },
+  virtual_text = {
+    prefix = "●", -- Change the prefix for virtual text diagnostics
+    spacing = 4,
+    source = "always",
+    severity = {
+      min = vim.diagnostic.severity.HINT,
+    },
+    format = function(diagnostic)
+      return string.format("%s: %s", diagnostic.source, diagnostic.message)
+    end,
+  },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "E", -- Error sign
+      [vim.diagnostic.severity.WARN] = "W",  -- Warning sign
+      [vim.diagnostic.severity.INFO] = "I",  -- Info sign
+      [vim.diagnostic.severity.HINT] = "H",  -- Hint sign
+    }
+  },
+  severity_sort = true,
+  update_in_insert = true,
+  underline = true,
+})

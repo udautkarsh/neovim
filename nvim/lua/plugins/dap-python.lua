@@ -15,6 +15,9 @@ return {
         require("dapui").setup({})
         require("nvim-dap-virtual-text").setup({
           commented = true, -- Show virtual text alongside comment
+          enabled = true, -- Enable virtual text
+          show_stop_reason = true, -- Show the reason for stopping
+          virt_text_pos = "eol" -- Position of virtual text
         })
   
         dap_python.setup("python3")

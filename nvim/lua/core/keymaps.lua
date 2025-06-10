@@ -49,8 +49,8 @@ keymap.set("n", "<leader>ee", ":NvimTreeToggle<CR>") -- toggle file explorer
 keymap.set("n", "<leader>er", ":NvimTreeFocus<CR>") -- toggle focus to file explorer
 keymap.set("n", "<leader>ef", ":NvimTreeFindFile<CR>") -- find file in file explorer
 -- uday
-keymap.set("n", "<C-n>", ":NvimTreeFindFile<CR>") -- Alternative mouse toggle using Ctrl + n
-keymap.set("n", "<C-n>", ":NvimTreeToggle<CR>") 
+keymap.set("n", "<leader>nn", ":NvimTreeFindFile<CR>") -- Alternative mouse toggle using Ctrl + n
+keymap.set("n", "<leader>nn", ":NvimTreeToggle<CR>") 
 keymap.set("n", "<leader>et", "<C-w>l") -- Move focus to editor
 keymap.set("n", "<leader>ef", "<C-w>h") -- Move focus to NvimTree
 keymap.set("n", "<C-Left>", "<C-w>h")  -- Move left to NvimTree
@@ -234,3 +234,10 @@ end, opts)
 keymap.set("n", "<leader>du", function()
   dapui.toggle()
 end, opts)
+
+
+-- Diagnostic keymaps
+keymap.set('n', '<leader>dm', vim.diagnostic.open_float, { desc = "Show diagnostic error messages" })
+keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
+keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
+keymap.set('n', '<leader>dm', vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
