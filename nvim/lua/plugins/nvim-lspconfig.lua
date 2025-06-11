@@ -67,7 +67,9 @@ return {
             },
           })
         end,
+
         -- Special handler for ansiblels, activated only for files with filetype 'yaml.ansible'.
+        -- Inside your config function, update the ansiblels handler:
         ["ansiblels"] = function()
           lspconfig.ansiblels.setup({
             on_attach = lsp_attach,
@@ -75,9 +77,33 @@ return {
             filetypes = { "yaml.ansible" },
             settings = {
               ansible = {
-                -- Additional Ansible-specific settings can be added here.
+                validation = {
+                  lint = {
+                    enabled = true,
+                    path = "ansible-lint"
+                  }
+                },
+                ansible = {
+                  path = "ansible"
+                }
               },
-            },
+              yaml = {
+                format = {
+                  enable = true,
+                  singleQuote = false,
+                  bracketSpacing = true
+                },
+                validate = true,
+                hover = true,
+                completion = true,
+                schemas = {
+                  -- Fixed schema URL syntax
+                  ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/definitions/playbook"] = {
+                    "*play*.{yml,yaml}"
+                  }
+                }
+            }
+          }
           })
         end,
         -- ADDED: Special handler for Ruff LSP.

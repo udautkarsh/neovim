@@ -93,3 +93,27 @@ vim.diagnostic.config({
   update_in_insert = true,
   underline = true,
 })
+
+-- Remove trailing whitespace on save for yaml files
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.yml", "*.yaml" },
+  callback = function()
+    -- Save cursor position
+    local cursor = vim.fn.getpos(".")
+    -- Remove trailing whitespace
+    vim.cmd([[%s/\s\+$//e]])
+    -- Restore cursor position
+    vim.fn.setpos(".", cursor)
+  end,
+})
+
+-- Set YAML indentation
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "yaml", "yaml.ansible" },
+  callback = function()
+    vim.opt_local.expandtab = true
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+  end,
+})
