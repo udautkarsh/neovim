@@ -78,7 +78,7 @@ vim.diagnostic.config({
       min = vim.diagnostic.severity.HINT,
     },
     format = function(diagnostic)
-      return string.format("%s: %s", diagnostic.source, diagnostic.message)
+      return string.format("%s", diagnostic.message)
     end,
   },
   signs = {

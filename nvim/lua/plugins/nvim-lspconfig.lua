@@ -45,7 +45,6 @@ return {
         'html',
         'lua_ls',
         'jsonls',
-        'lemminx',
         'marksman',
         'quick_lint_js',
         'yamlls',
@@ -131,15 +130,17 @@ return {
     -- Setup mason-tool-installer to install formatters/linters/debuggers.
     require('mason-tool-installer').setup({
       ensure_installed = {
-        'black',
+        -- 'black',
         'debugpy',
-        'flake8',
-        'isort',
-        'mypy',
-        'pylint',
+        -- 'flake8',
+        -- 'isort',
+        -- 'mypy',
+        -- 'pylint',
         'ansible-lint',  -- Added ansible-lint for linting Ansible playbooks.
         'ruff',          -- ADDED: Ruff formatter/linter.
       },
+      auto_update = true,
+      run_on_start = true,
     })
 
     -- Since mason-tool-installer might trigger on VimEnter, explicitly run the installer command.

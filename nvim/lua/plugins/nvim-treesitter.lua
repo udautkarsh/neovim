@@ -2,7 +2,7 @@
 return {
   -- https://github.com/nvim-treesitter/nvim-treesitter
   'nvim-treesitter/nvim-treesitter',
-  event = 'VeryLazy',
+  event = "BufReadPre",
   dependencies = {
     -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     'nvim-treesitter/nvim-treesitter-textobjects',
@@ -17,7 +17,7 @@ return {
     ensure_installed = {
       'lua',
       'python',
-      'javascript',
+      -- 'javascript',
       'typescript',
       'html',
       'css',
