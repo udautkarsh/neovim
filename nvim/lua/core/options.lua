@@ -117,3 +117,9 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.softtabstop = 2
   end,
 })
+
+-- Remove any new lines at he end 
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.yaml", "*.yml" },
+  command = "%s/\\v(\\n\\s*)+$//e",
+})

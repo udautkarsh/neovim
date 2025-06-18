@@ -20,24 +20,20 @@ return {
     -- https://github.com/folke/neodev.nvim
     { 'folke/neodev.nvim', opts = {} },
     -- Completion engine and LSP completion support
-    { 'hrsh7th/nvim-cmp' },
-    { 'hrsh7th/cmp-nvim-lsp' },
+     { 'hrsh7th/nvim-cmp' },
+     { 'hrsh7th/cmp-nvim-lsp' },
   },
   config = function()
     -- Define lspconfig, capabilities, and on_attach callback.
+    
     local lspconfig = require('lspconfig')
-    local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
+    local original_capabilities = vim.lsp.protocol.make_client_capabilities()
+    local capabilities = require("blink.cmp").get_lsp_capabilities(original_capabilities)
     local lsp_attach = function(client, bufnr)
-      -- Create your buffer-local keybindings here.
-      -- Example:
-      -- local opts = { noremap = true, silent = true, buffer = bufnr }
-      -- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
     end
 
-    -- Initialize Mason (LSP/DAP/Formatter Installer).
     require('mason').setup({})
 
-    -- Configure mason-lspconfig to install and set up LSP servers.
     require('mason-lspconfig').setup({
       ensure_installed = {
         'bashls',
