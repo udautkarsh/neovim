@@ -120,5 +120,15 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Remove any new lines at he end 
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = { "*.yaml", "*.yml" },
-  command = "%s/\\v(\\n\\s*)+$//e",
+  callback = function()
+    local last_line = vim.fn.line("$")
+    for lnum = last_line, 1, -1 do
+      local line = vim.fn.getline(lnum)
+      if line:match("^%s*$") then
+        vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, {})
+      else
+        break
+      end
+    end
+  end,
 })
