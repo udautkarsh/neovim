@@ -70,7 +70,10 @@ vim.diagnostic.config({
     header = "", -- Remove "Diagnostics" header
     prefix = "", -- Remove prefix from diagnostic message
   },
+
+  --[[
   virtual_text = {
+    enabled = false,
     prefix = "●", -- Change the prefix for virtual text diagnostics
     spacing = 4,
     source = "always",
@@ -81,14 +84,10 @@ vim.diagnostic.config({
       return string.format("%s", diagnostic.message)
     end,
   },
-  signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = "E", -- Error sign
-      [vim.diagnostic.severity.WARN] = "W",  -- Warning sign
-      [vim.diagnostic.severity.INFO] = "I",  -- Info sign
-      [vim.diagnostic.severity.HINT] = "H",  -- Hint sign
-    }
-  },
+  --]]
+
+  virtual_lines = true,
+  signs = true,
   severity_sort = true,
   update_in_insert = true,
   underline = true,

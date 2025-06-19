@@ -21,7 +21,7 @@ return {
   opts = {
     bigfile = { enabled = true },
     dashboard = {
-      -- width = 120,
+      -- width = 70,
       row = nil, -- dashboard position. nil for center
       col = nil, -- dashboard position. nil for center
       pane_gap = 4, -- empty columns between vertical panes
@@ -62,8 +62,8 @@ return {
       },
       sections = {
         { pane = 1, section = "header" , height = 5, padding = 1},
-        { pane = 2, section = "terminal", cmd = "~/.config/nvim/scripts/square", height = 5, padding = 1 },
-        { pane = 1,  icon = " ", title = "Keymaps", section = "keys", indent = 3, padding = 2, gap = 1 },
+        { pane = 2, section = "terminal", cmd = "~/.config/nvim/scripts/square", height = 5, padding = 2 },
+        { pane = 1, icon = " ", title = "Keymaps", section = "keys", indent = 3, padding = 2, gap = 1 },
         { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 3, padding = 2, limit = 10 },
         { pane = 2, icon = " ", title = "Projects", section = "projects", indent = 3, padding = 2 , limit = 10},
         { section = "startup" },
@@ -116,5 +116,16 @@ return {
         end
       end,
     })
-  end
+    local ok, nvim_tree = pcall(require, "nvim-tree")
+    if ok then
+      nvim_tree.setup({
+        sync_root_with_cwd = true,
+        respect_buf_cwd = true,
+        update_focused_file = {
+          enable = true,
+          update_root = true,
+        },
+      })
+    end
+  end,
 }

@@ -18,7 +18,7 @@ return {
       }
     },
     filters = {
-      dotfiles = true,
+      dotfiles = false,
     },
     actions = {
       open_file = {
@@ -35,13 +35,15 @@ return {
     require("nvim-tree").setup(opts)
 
     -- Auto-open nvim-tree when Neovim starts without a file
-    -- vim.api.nvim_create_autocmd("VimEnter", {
-    --  callback = function()
-    --    if vim.fn.argc() == 0 then
-    --      require("nvim-tree.api").tree.open()
-    --   end
-    --  end
-    --})
+    --[[
+    vim.api.nvim_create_autocmd("VimEnter", {
+      callback = function()
+        if vim.fn.argc() == 0 then
+          require("nvim-tree.api").tree.open()
+       end
+      end
+     })
+    --]]
 
     -- Ensure nvim-web-devicons is properly configured
     require("nvim-web-devicons").setup({
