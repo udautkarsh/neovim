@@ -59,9 +59,7 @@ vim.opt.spelllang = 'en_us'
 opt.mouse = "a" -- Enable mouse support in all modes
 
 
-
 -- vim diagnostic configurations
-
 
 vim.diagnostic.config({
   float = { 
@@ -132,3 +130,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
   end,
 })
+
+
+-- select lines using shift + arrows
+
+-- Enable Shift + Arrow to select lines in visual mode
+vim.keymap.set("n", "<S-Up>", "Vkk", { noremap = true, silent = true })
+vim.keymap.set("n", "<S-Down>", "Vjj", { noremap = true, silent = true })
+vim.keymap.set("n", "<S-Left>", "vh", { noremap = true, silent = true })
+vim.keymap.set("n", "<S-Right>", "vl", { noremap = true, silent = true })

@@ -30,6 +30,12 @@ return {
       'gitcommit',
       'git_rebase',
       'diff',
+      'git_config',
+      'gitcommit',
+      'gitignore',
+      'gitattributes',
+      'ninja',
+      'rst',
     },
   },
   config = function (_, opts)

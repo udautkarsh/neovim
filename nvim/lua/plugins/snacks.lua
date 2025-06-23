@@ -125,6 +125,9 @@ return {
           enable = true,
           update_root = true,
         },
+        filters = {
+          dotfiles = true,
+        },
       })
     end
   end,

@@ -18,7 +18,7 @@ return {
       }
     },
     filters = {
-      dotfiles = false,
+      dotfiles = true,
     },
     actions = {
       open_file = {
