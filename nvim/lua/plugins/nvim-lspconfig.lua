@@ -15,20 +15,20 @@ return {
     { 'WhoIsSethDaniel/mason-tool-installer.nvim' },
     -- Useful status updates for LSP
     -- https://github.com/j-hui/fidget.nvim
-    { 'j-hui/fidget.nvim', opts = {} },
+    { 'j-hui/fidget.nvim',                        opts = {} },
     -- Enhanced Lua configuration for Neovim
     -- https://github.com/folke/neodev.nvim
-    { 'folke/neodev.nvim', opts = {} },
+    { 'folke/neodev.nvim',                        opts = {} },
     -- Completion engine and LSP completion support
-     { 'hrsh7th/nvim-cmp' },
-     { 'hrsh7th/cmp-nvim-lsp' },
+    { 'hrsh7th/nvim-cmp' },
+    { 'hrsh7th/cmp-nvim-lsp' },
   },
   config = function()
     -- Define lspconfig, capabilities, and on_attach callback.
-    
+
     local lspconfig = require('lspconfig')
     local original_capabilities = vim.lsp.protocol.make_client_capabilities()
-    local capabilities = require("blink.cmp").get_lsp_capabilities(original_capabilities)
+    local lsp_capabilities = require("blink.cmp").get_lsp_capabilities(original_capabilities)
     local lsp_attach = function(client, bufnr)
     end
 
@@ -45,8 +45,8 @@ return {
         'quick_lint_js',
         'yamlls',
         'pyright',
-        'ansiblels',  -- Added Ansible language server.
-        'ruff',       -- ADDED: Ruff LSP integration (use "ruff", not "ruff-lsp").
+        'ansiblels', -- Added Ansible language server.
+        'ruff',      -- ADDED: Ruff LSP integration (use "ruff", not "ruff-lsp").
       },
       handlers = {
 
@@ -97,8 +97,8 @@ return {
                     "*play*.{yml,yaml}"
                   }
                 }
+              }
             }
-          }
           })
         end,
         -- ADDED: Special handler for Ruff LSP.
@@ -108,7 +108,7 @@ return {
             capabilities = lsp_capabilities,
             init_options = {
               settings = {
-                fix = true,  -- Tell Ruff to apply fixes automatically if supported.
+                fix = true, -- Tell Ruff to apply fixes automatically if supported.
               },
             },
           })
@@ -132,8 +132,8 @@ return {
         -- 'isort',
         -- 'mypy',
         -- 'pylint',
-        'ansible-lint',  -- Added ansible-lint for linting Ansible playbooks.
-        'ruff',          -- ADDED: Ruff formatter/linter.
+        'ansible-lint', -- Added ansible-lint for linting Ansible playbooks.
+        'ruff',         -- ADDED: Ruff formatter/linter.
       },
       auto_update = true,
       run_on_start = true,
@@ -159,4 +159,3 @@ return {
     })
   end,
 }
-
