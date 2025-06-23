@@ -31,16 +31,15 @@ return {
       'git_rebase',
       'diff',
       'git_config',
-      'gitcommit',
+      -- 'gitcommit',
       'gitignore',
       'gitattributes',
       'ninja',
       'rst',
     },
   },
-  config = function (_, opts)
+  config = function(_, opts)
     local configs = require("nvim-treesitter.configs")
     configs.setup(opts)
   end
 }
-
