@@ -125,7 +125,7 @@ return {
     -- Setup mason-tool-installer to install formatters/linters/debuggers.
     require('mason-tool-installer').setup({
       ensure_installed = {
-        -- 'black',
+        'black',
         'debugpy',
         -- 'flake8',
         -- 'isort',

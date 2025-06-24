@@ -1,4 +1,35 @@
 -- is for formatting(fixes/aligns code) and not linting (reporting suggestions in editor). For linting use nvim-lint
+--[[
+-- using black formatter
+return {
+  'stevearc/conform.nvim',
+  lazy = false,
+  event = { "BufWritePre" },
+  opts = {
+    formatters_by_ft = {
+      python = { "black" },
+    },
+
+    formatters = {
+      black = {
+        command = "black",
+        args = {
+          "--quiet",             -- suppress output unless errors occur
+          "--line-length", "79", -- set maximum line length
+          "-",
+        },
+        stdin = true,
+      },
+    },
+
+    format_on_save = {
+      timeout_ms = 2000,
+      lsp_format = "fallback",
+    },
+  },
+}
+--]]
+-- using ruff
 
 return {
   'stevearc/conform.nvim',
@@ -6,7 +37,7 @@ return {
   event = { "BufWritePre" },
   opts = {
     formatters_by_ft = {
-      python = { "ruff_fix", "ruff_format" },  -- Added pylint here
+      python = { "ruff_fix", "ruff_format" }, -- Added pylint here
     },
 
     formatters = {

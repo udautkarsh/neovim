@@ -7,7 +7,8 @@ return {
       vim.diagnostic.config({ virtual_text = false })
   
       require("tiny-inline-diagnostic").setup({
-        preset = "modern", -- "classic", "ghost", "minimal", etc.
+        -- preset = "modern", -- "classic", "ghost", "minimal", etc.
+        preset = "ghost",
         transparent_bg = false,
         hi = {
           error       = "DiagnosticError",
