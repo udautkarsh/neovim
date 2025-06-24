@@ -85,7 +85,7 @@ return {
         ufo             = true,
         dim             = true,
         git_signs       = false,
-        diagnostics     = false,
+        diagnostics     = true,
         line_number     = false,
         relative_number = false,
         signcolumn      = "no",

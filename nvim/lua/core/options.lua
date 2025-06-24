@@ -58,15 +58,18 @@ vim.opt.spelllang = 'en_us'
 -- Enable mouse support
 opt.mouse = "a" -- Enable mouse support in all modes
 
-
+--[[
 -- vim diagnostic configurations
-
 vim.diagnostic.config({
   float = { 
     border = "rounded",
     source = "always", -- Show source in diagnostic popup window
     header = "", -- Remove "Diagnostics" header
     prefix = "", -- Remove prefix from diagnostic message
+    win_opts = {
+      wrap = true,
+    },
+    max_width = math.floor(vim.o.columns * 0.8),
   },
 
   --[[
@@ -82,7 +85,6 @@ vim.diagnostic.config({
       return string.format("%s", diagnostic.message)
     end,
   },
-  --]]
 
   virtual_lines = true,
   signs = true,
@@ -90,6 +92,8 @@ vim.diagnostic.config({
   update_in_insert = true,
   underline = true,
 })
+--]]
+
 
 -- Remove trailing whitespace on save for yaml files
 vim.api.nvim_create_autocmd("BufWritePre", {
@@ -131,11 +135,3 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
-
--- select lines using shift + arrows
-
--- Enable Shift + Arrow to select lines in visual mode
-vim.keymap.set("n", "<S-Up>", "Vkk", { noremap = true, silent = true })
-vim.keymap.set("n", "<S-Down>", "Vjj", { noremap = true, silent = true })
-vim.keymap.set("n", "<S-Left>", "vh", { noremap = true, silent = true })
-vim.keymap.set("n", "<S-Right>", "vl", { noremap = true, silent = true })

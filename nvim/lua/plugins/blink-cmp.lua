@@ -2,7 +2,7 @@ return {
     {
       "saghen/blink.compat",
       version = "*", -- Use the latest release.
-      lazy = true,
+      lazy = false,
       opts = {},
     },
     {

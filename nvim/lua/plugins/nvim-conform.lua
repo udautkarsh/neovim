@@ -1,10 +1,12 @@
+-- is for formatting(fixes/aligns code) and not linting (reporting suggestions in editor). For linting use nvim-lint
+
 return {
   'stevearc/conform.nvim',
   lazy = false,
   event = { "BufWritePre" },
   opts = {
     formatters_by_ft = {
-      python = { "ruff_fix", "ruff_format" },  -- Only Ruff tools
+      python = { "ruff_fix", "ruff_format" },  -- Added pylint here
     },
 
     formatters = {
@@ -14,8 +16,8 @@ return {
         args = {
           "check",
           "--fix",
-          "--line-length=100",
-          "--extend-select=I",  -- Enable import sorting
+          "--line-length=120",
+          "--extend-select=I", -- Enable import sorting
           "--stdin-filename",
           "$FILENAME",
           "-",
@@ -27,7 +29,7 @@ return {
         command = "ruff",
         args = {
           "format",
-          "--line-length=100",
+          "--line-length=120",
           "--stdin-filename",
           "$FILENAME",
           "-",
@@ -36,7 +38,7 @@ return {
     },
 
     format_on_save = {
-      timeout_ms = 500,
+      timeout_ms = 2000,
       lsp_format = "fallback",
     },
   },

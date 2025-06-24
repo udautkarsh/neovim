@@ -62,7 +62,6 @@ return {
             },
           })
         end,
-
         -- Special handler for ansiblels, activated only for files with filetype 'yaml.ansible'.
         -- Inside your config function, update the ansiblels handler:
         ["ansiblels"] = function()
@@ -131,7 +130,8 @@ return {
         -- 'flake8',
         -- 'isort',
         -- 'mypy',
-        -- 'pylint',
+        'pylint',
+        'shellcheck',
         'ansible-lint', -- Added ansible-lint for linting Ansible playbooks.
         'ruff',         -- ADDED: Ruff formatter/linter.
       },
