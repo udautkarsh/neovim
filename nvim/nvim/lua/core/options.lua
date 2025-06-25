@@ -1,0 +1,137 @@
+local opt = vim.opt
+
+-- Session Management
+opt.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
+-- Line Numbers
+opt.relativenumber = true
+opt.number = true
+
+-- Tabs & Indentation
+opt.tabstop = 2
+opt.shiftwidth = 2
+opt.expandtab = true
+opt.autoindent = true
+vim.bo.softtabstop = 2
+
+-- Line Wrapping
+opt.wrap = false
+
+-- Search Settings
+opt.ignorecase = true
+opt.smartcase = true
+
+-- Cursor Line
+opt.cursorline = true
+
+-- Appearance
+opt.termguicolors = true
+opt.background = "dark"
+opt.signcolumn = "yes"
+opt.showmode = false
+
+-- Backspace
+opt.backspace = "indent,eol,start"
+
+-- Clipboard
+opt.clipboard:append("unnamedplus")
+
+-- Split Windows
+opt.splitright = true
+opt.splitbelow = true
+
+-- Consider - as part of keyword
+opt.iskeyword:append("-")
+
+-- Disable the mouse while in nvim
+opt.mouse = ""
+
+-- Folding
+opt.foldlevel = 20
+opt.foldmethod = "expr"
+opt.foldexpr = "nvim_treesitter#foldexpr()" -- Utilize Treesitter folds
+
+-- Enable spell check for all buffers by default
+vim.opt.spell = false
+vim.opt.spelllang = 'en_us'
+
+-- Enable mouse support
+opt.mouse = "a" -- Enable mouse support in all modes
+
+--[[
+-- vim diagnostic configurations
+vim.diagnostic.config({
+  float = { 
+    border = "rounded",
+    source = "always", -- Show source in diagnostic popup window
+    header = "", -- Remove "Diagnostics" header
+    prefix = "", -- Remove prefix from diagnostic message
+    win_opts = {
+      wrap = true,
+    },
+    max_width = math.floor(vim.o.columns * 0.8),
+  },
+
+  --[[
+  virtual_text = {
+    enabled = false,
+    prefix = "●", -- Change the prefix for virtual text diagnostics
+    spacing = 4,
+    source = "always",
+    severity = {
+      min = vim.diagnostic.severity.HINT,
+    },
+    format = function(diagnostic)
+      return string.format("%s", diagnostic.message)
+    end,
+  },
+
+  virtual_lines = true,
+  signs = true,
+  severity_sort = true,
+  update_in_insert = true,
+  underline = true,
+})
+--]]
+
+
+-- Remove trailing whitespace on save for yaml files
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.yml", "*.yaml" },
+  callback = function()
+    -- Save cursor position
+    local cursor = vim.fn.getpos(".")
+    -- Remove trailing whitespace
+    vim.cmd([[%s/\s\+$//e]])
+    -- Restore cursor position
+    vim.fn.setpos(".", cursor)
+  end,
+})
+
+-- Set YAML indentation
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "yaml", "yaml.ansible" },
+  callback = function()
+    vim.opt_local.expandtab = true
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+  end,
+})
+
+-- Remove any new lines at he end 
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.yaml", "*.yml" },
+  callback = function()
+    local last_line = vim.fn.line("$")
+    for lnum = last_line, 1, -1 do
+      local line = vim.fn.getline(lnum)
+      if line:match("^%s*$") then
+        vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, {})
+      else
+        break
+      end
+    end
+  end,
+})
+

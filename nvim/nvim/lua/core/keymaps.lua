@@ -44,8 +44,6 @@ keymap.set("n", "<leader>qc", ":cclose<CR>") -- close quickfix list
 -- Vim-maximizer
 keymap.set("n", "<leader>sm", ":MaximizerToggle<CR>") -- toggle maximize tab
 
-
-
 -- Nvim-tree
 keymap.set("n", "<leader>ee", ":NvimTreeToggle<CR>")   -- toggle file explorer
 keymap.set("n", "<leader>er", ":NvimTreeFocus<CR>")    -- toggle focus to file explorer
@@ -59,50 +57,6 @@ keymap.set("n", "<C-Left>", "<C-w>h")                  -- Move left to NvimTree
 keymap.set("n", "<C-Right>", "<C-w>l")                 -- Move right to file editor
 keymap.set("n", "<C-Up>", "<C-w>k")                    -- Move up to NvimTree
 keymap.set("n", "<C-Down>", "<C-w>j")                  -- Move down to file editor
--- toggle hidden files in nvim tree
-vim.keymap.set("n", "<leader>.", function()
-  local api = require("nvim-tree.api")
-  api.tree.toggle_hidden_filter()
-end, { desc = "Toggle hidden files in NvimTree" })
-
-
-
-
-
--- neotree
-
--- Toggle the neo-tree explorer
-vim.keymap.set("n", "<leader>ee", ":Neotree toggle<CR>", { desc = "Toggle NeoTree explorer" })
-
--- Move focus to the neo-tree explorer
-vim.keymap.set("n", "<leader>er", ":Neotree focus<CR>", { desc = "Focus NeoTree explorer" })
-
--- Reveal current file in the neo-tree explorer (find file)
-vim.keymap.set("n", "<leader>ef", ":Neotree reveal<CR>", { desc = "Reveal file in NeoTree" })
-
--- Alternative toggle/find mapping (as provided)
-vim.keymap.set("n", "<leader>nn", ":Neotree toggle<CR>", { desc = "Alternative toggle for NeoTree" })
-
--- toggle hidden files
--- shift + h
--- or but not working
-vim.keymap.set("n", "<leader>.", function()
-  vim.cmd("Neotree action toggle_hidden")
-end, { desc = "Toggle hidden files in Neo-tree" })
-
-
-
-
--- Window navigation: these can remain as they are, assuming your neo-tree window is on the left.
-vim.keymap.set("n", "<leader>et", "<C-w>l", { desc = "Move focus to editor" })
--- If you need to move focus to neo-tree from the editor, use the focus command (or adjust as desired).
--- Here, we keep the original left/right/up/down mappings:
-vim.keymap.set("n", "<C-Left>", "<C-w>h", { desc = "Move left (to NeoTree)" })
-vim.keymap.set("n", "<C-Right>", "<C-w>l", { desc = "Move right (to editor)" })
-vim.keymap.set("n", "<C-Up>", "<C-w>k", { desc = "Move up" })
-vim.keymap.set("n", "<C-Down>", "<C-w>j", { desc = "Move down" })
-
-
 
 
 
@@ -285,3 +239,9 @@ keymap.set('n', '<leader>dm', vim.diagnostic.setloclist, { desc = "Open diagnost
 
 
 
+-- toggle hidden files in nvim tree
+
+vim.keymap.set("n", "<leader>.", function()
+  local api = require("nvim-tree.api")
+  api.tree.toggle_hidden_filter()
+end, { desc = "Toggle hidden files in NvimTree" })
