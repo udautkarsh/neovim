@@ -47,7 +47,7 @@ return {
         args = {
           "check",
           "--fix",
-          "--line-length=120",
+          "--line-length=79",
           "--extend-select=I", -- Enable import sorting
           "--stdin-filename",
           "$FILENAME",
@@ -60,7 +60,7 @@ return {
         command = "ruff",
         args = {
           "format",
-          "--line-length=120",
+          "--line-length=79",
           "--stdin-filename",
           "$FILENAME",
           "-",

@@ -85,11 +85,6 @@ vim.keymap.set("n", "<leader>nn", ":Neotree toggle<CR>", { desc = "Alternative t
 
 -- toggle hidden files
 -- shift + h
--- or but not working
-vim.keymap.set("n", "<leader>.", function()
-  vim.cmd("Neotree action toggle_hidden")
-end, { desc = "Toggle hidden files in Neo-tree" })
-
 
 
 
@@ -142,6 +137,7 @@ keymap.set("n", "<leader>xr", ":call VrcQuery()<CR>") -- Run REST query
 -- LSP
 keymap.set('n', '<leader>gg', '<cmd>lua vim.lsp.buf.hover()<CR>')
 keymap.set('n', '<leader>gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
+keymap.set('n', '<leader>gb', '<C-o>', { desc = 'Go back in jump list' })
 keymap.set('n', '<leader>gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
 keymap.set('n', '<leader>gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
 keymap.set('n', '<leader>gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
