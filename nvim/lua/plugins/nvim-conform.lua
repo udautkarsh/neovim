@@ -38,6 +38,7 @@ return {
   opts = {
     formatters_by_ft = {
       python = { "ruff_fix", "ruff_format" }, -- Added pylint here
+      yaml = { "prettier" },
     },
 
     formatters = {
@@ -67,7 +68,17 @@ return {
         },
       },
     },
+    prettier = {
+      command = "prettier",
+      args = {
+        "--config", vim.fn.expand("~/.config/nvim/files/.prittierrc.yaml"),
+        "--parser", "yaml",
+      },
+      stdin = true,
+    },
 
+
+    -- Format on save configuration
     format_on_save = {
       timeout_ms = 2000,
       lsp_format = "fallback",

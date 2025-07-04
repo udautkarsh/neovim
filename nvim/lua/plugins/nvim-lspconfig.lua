@@ -42,7 +42,6 @@ return {
         'lua_ls',
         'jsonls',
         'marksman',
-        'quick_lint_js',
         'yamlls',
         'pyright',
         'ansiblels', -- Added Ansible language server.
@@ -131,9 +130,11 @@ return {
         -- 'isort',
         -- 'mypy',
         'pylint',
+        'jsonlint',
         'shellcheck',
         'ansible-lint', -- Added ansible-lint for linting Ansible playbooks.
         'ruff',         -- ADDED: Ruff formatter/linter.
+        'prettier',     -- ADDED: Prettier for yaml formatting.
       },
       auto_update = true,
       run_on_start = true,

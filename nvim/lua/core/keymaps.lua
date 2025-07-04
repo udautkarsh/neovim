@@ -68,9 +68,8 @@ end, { desc = "Toggle hidden files in NvimTree" })
 
 
 
-
+--[[
 -- neotree
-
 -- Toggle the neo-tree explorer
 vim.keymap.set("n", "<leader>ee", ":Neotree toggle<CR>", { desc = "Toggle NeoTree explorer" })
 
@@ -87,7 +86,6 @@ vim.keymap.set("n", "<leader>nn", ":Neotree toggle<CR>", { desc = "Alternative t
 -- shift + h
 
 
-
 -- Window navigation: these can remain as they are, assuming your neo-tree window is on the left.
 vim.keymap.set("n", "<leader>et", "<C-w>l", { desc = "Move focus to editor" })
 -- If you need to move focus to neo-tree from the editor, use the focus command (or adjust as desired).
@@ -96,7 +94,7 @@ vim.keymap.set("n", "<C-Left>", "<C-w>h", { desc = "Move left (to NeoTree)" })
 vim.keymap.set("n", "<C-Right>", "<C-w>l", { desc = "Move right (to editor)" })
 vim.keymap.set("n", "<C-Up>", "<C-w>k", { desc = "Move up" })
 vim.keymap.set("n", "<C-Down>", "<C-w>j", { desc = "Move down" })
-
+--]]
 
 
 
@@ -116,6 +114,12 @@ keymap.set('n', '<leader>ft', function()                                        
   if not success or not node then return end;
   require('telescope.builtin').live_grep({ search_dirs = { node.absolute_path } })
 end)
+-- Telescope Git pickers
+keymap.set('n', '<leader>tg', require('telescope.builtin').git_status, { desc = "Telescope: Git status" })
+keymap.set('n', '<leader>tb', require('telescope.builtin').git_branches, { desc = "Telescope: Git branches" })
+keymap.set('n', '<leader>tc', require('telescope.builtin').git_commits, { desc = "Telescope: Git commits" })
+keymap.set('n', '<leader>tC', require('telescope.builtin').git_bcommits, { desc = "Telescope: Buffer commits" })
+keymap.set('n', '<leader>ts', require('telescope.builtin').git_stash, { desc = "Telescope: Git stash" })
 
 
 -- Harpoon
@@ -135,26 +139,29 @@ keymap.set("n", "<leader>h9", function() require("harpoon.ui").nav_file(9) end)
 keymap.set("n", "<leader>xr", ":call VrcQuery()<CR>") -- Run REST query
 
 -- LSP
-keymap.set('n', '<leader>gg', '<cmd>lua vim.lsp.buf.hover()<CR>')
-keymap.set('n', '<leader>gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
-keymap.set('n', '<leader>gb', '<C-o>', { desc = 'Go back in jump list' })
-keymap.set('n', '<leader>gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
-keymap.set('n', '<leader>gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
-keymap.set('n', '<leader>gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
-keymap.set('n', '<leader>gr', '<cmd>lua vim.lsp.buf.references()<CR>')
-keymap.set('n', '<leader>gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>')
-keymap.set('n', '<leader>rr', '<cmd>lua vim.lsp.buf.rename()<CR>')
-keymap.set('n', '<leader>gf', '<cmd>lua vim.lsp.buf.format({async = true})<CR>')
-keymap.set('v', '<leader>gf', '<cmd>lua vim.lsp.buf.format({async = true})<CR>')
-keymap.set('n', '<leader>ga', '<cmd>lua vim.lsp.buf.code_action()<CR>')
-keymap.set('n', '<leader>gl', '<cmd>lua vim.diagnostic.open_float()<CR>')
-keymap.set('n', '<leader>gp', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
-keymap.set('n', '<leader>gn', '<cmd>lua vim.diagnostic.goto_next()<CR>')
-keymap.set('n', '<leader>tr', '<cmd>lua vim.lsp.buf.document_symbol()<CR>')
-keymap.set('i', '<C-Space>', '<cmd>lua vim.lsp.buf.completion()<CR>')
+keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "Show hover documentation" })
+
+keymap.set('n', 'gd', vim.lsp.buf.definition, { desc = "Go to definition" })
+keymap.set('n', 'gb', '<C-o>', { desc = 'Go back in jump list' })
+-- alterntive
+keymap.set('n', '<C-CR>', vim.lsp.buf.definition, { desc = "Go to definition" })
+keymap.set('n', '<C-BS>', '<C-o>', { desc = 'Go back in jump list' })
+
+keymap.set('n', 'gi', vim.lsp.buf.implementation, { desc = "Go to implementation" })
+keymap.set('n', 'gt', vim.lsp.buf.type_definition, { desc = "Go to type definition" })
+keymap.set('n', 'gr', vim.lsp.buf.references, { desc = "Go to references" })
+keymap.set('n', 'gs', vim.lsp.buf.signature_help, { desc = "Show signature help" })
+keymap.set('n', 'rr', vim.lsp.buf.rename, { desc = "Rename symbol" }) -- or use <leader>rn
+keymap.set('n', 'gf', function() vim.lsp.buf.format { async = true } end, { desc = "Format buffer" })
+keymap.set('n', 'ga', vim.lsp.buf.code_action, { desc = "Code action" })
+keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "Show diagnostics" })
+keymap.set('n', 'gp', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
+keymap.set('n', 'gn', vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
+keymap.set('n', 'tr', vim.lsp.buf.document_symbol, { desc = "Document symbols" })
+keymap.set('i', '<C-Space>', vim.lsp.buf.completion, { desc = "LSP completion" })
 
 -- Filetype-specific keymaps (these can be done in the ftplugin directory instead if you prefer)
-
+--[[
 keymap.set("n", '<leader>tc', function()
   if vim.bo.filetype == 'python' then
     require('dap-python').test_class();
@@ -166,11 +173,32 @@ keymap.set("n", '<leader>tm', function()
     require('dap-python').test_method();
   end
 end)
+--]]
 
 
 -- gitsigns
 keymap.set("n", "<leader>gp", ":Gitsigns preview_hunk<CR>", {})              -- preview git hunk
 keymap.set("n", "<leader>gt", ":Gitsigns toggle_current_line_blame<CR>", {}) -- toggle current line blame
+
+
+-- vim-figitive
+keymap.set("n", "<leader>gs", ":Git<CR>", { desc = "Open Git status" }) -- open git status
+keymap.set("n", "<leader>gl", ":Git log<CR>", { desc = "Open Git log" }) -- open git log
+keymap.set("n", "<leader>gc", ":Git commit<CR>", { desc = "Open Git commit" }) -- open git commit
+keymap.set("n", "<leader>gp", ":Git push<CR>", { desc = "Git push" }) -- push changes
+keymap.set("n", "<leader>gf", ":Git fetch<CR>", { desc = "Git fetch" }) -- fetch changes
+keymap.set("n", "<leader>gP", ":Git pull<CR>", { desc = "Git pull" }) -- pull changes
+keymap.set("n", "<leader>gd", ":Git diff<CR>", { desc = "Git diff" }) -- show git diff
+keymap.set("n", "<leader>gD", ":Git difftool<CR>", { desc = "Git difftool" }) -- show git diff in difftool
+keymap.set("n", "<leader>gB", ":Git blame<CR>", { desc = "Git blame" }) -- show git blame
+keymap.set("n", "<leader>gS", ":Git stash<CR>", { desc = "Git stash" }) -- stash changes
+keymap.set("n", "<leader>gA", ":Git add .<CR>", { desc = "Git add all changes" }) -- add all changes
+keymap.set("n", "<leader>gR", ":Git reset HEAD<CR>", { desc = "Git reset HEAD" }) -- reset HEAD
+keymap.set("n", "<leader>gC", ":Git checkout<CR>", { desc = "Git checkout" }) -- checkout branch
+keymap.set("n", "<leader>gM", ":Git merge<CR>", { desc = "Git merge" }) -- merge branch
+keymap.set("n", "<leader>gL", ":Git log --oneline<CR>", { desc = "Git log oneline" }) -- show git log in one line
+keymap.set("n", "<leader>gO", ":Git log --oneline --graph<CR>", { desc = "Git log oneline graph" }) -- show git log in one line with graph
+
 
 -- noice.nvim
 keymap.set("n", "<leader>nm", ":Noice<CR>", { desc = "Toggle Noice" })                   -- toggle Noice UI

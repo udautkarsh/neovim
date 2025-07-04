@@ -19,7 +19,7 @@ return {
           background  = "CursorLine",
         },
         options = {
-          show_source = { enabled = false },       -- Toggle LSP source display
+          show_source = { enabled = true },       -- Toggle LSP source display
           use_icons_from_diagnostic = false,       -- Prefer style over LSP icons
           add_messages = true,                     -- Show the actual message
         },

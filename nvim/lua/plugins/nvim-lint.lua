@@ -3,7 +3,7 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   config = function()
     local lint = require("lint")
-
+    --[[
     lint.linters.yamllint = {
       cmd = "yamllint",
       -- Use the parsable format to ease output parsing
@@ -18,10 +18,11 @@ return {
           info    = vim.diagnostic.severity.INFO }
       ),
     }
+--]]
 
     lint.linters_by_ft = {
       python = { "pylint" },
-      yaml   = { "yamllint" },
+      --     yaml   = { "yamllint" },
       json   = { "jsonlint" },
       html   = { "htmlhint" },
       sh     = { "shellcheck" },
