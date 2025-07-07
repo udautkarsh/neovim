@@ -61,6 +61,28 @@ return {
             },
           })
         end,
+        -- pyright is the Python language server.
+        ["pyright"] = function()
+          lspconfig.pyright.setup({
+            on_attach = lsp_attach,
+            capabilities = lsp_capabilities,
+            settings = {
+              python = {
+                analysis = {
+                  typeCheckingMode = "basic", -- Set to "strict" for stricter checks.
+                  autoSearchPaths = true,
+                  useLibraryCodeForTypes = true,
+                  pythonPath = vim.fn.exepath("python3") or "python3", -- Use the system Python path.
+                  analysis = {
+                    extraPaths = {
+                      vim.fn.expand("~/.local/lib/python3.*/site-packages"), -- Adjust this path as needed.
+                    },
+                  }
+                },
+              },
+            },
+          })
+        end,
         -- Special handler for ansiblels, activated only for files with filetype 'yaml.ansible'.
         -- Inside your config function, update the ansiblels handler:
         ["ansiblels"] = function()
