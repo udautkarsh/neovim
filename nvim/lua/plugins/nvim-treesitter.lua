@@ -2,7 +2,7 @@
 return {
   -- https://github.com/nvim-treesitter/nvim-treesitter
   'nvim-treesitter/nvim-treesitter',
-  event = 'VeryLazy',
+  event = "BufReadPre",
   dependencies = {
     -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     'nvim-treesitter/nvim-treesitter-textobjects',
@@ -30,11 +30,24 @@ return {
       'gitcommit',
       'git_rebase',
       'diff',
+      'git_config',
+      'gitcommit',
+      'gitignore',
+      'gitattributes',
+      'ninja',
+      'rst',
+      'regex',
+      'latex',
+      'norg',
+      'scss',
+      'svelte',
+      'tsx',
+      'typst',
+      'vue',
     },
   },
-  config = function (_, opts)
+  config = function(_, opts)
     local configs = require("nvim-treesitter.configs")
     configs.setup(opts)
   end
 }
-

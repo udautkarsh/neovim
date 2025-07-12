@@ -11,6 +11,7 @@ return {
       end,
     },
     { "folke/noice.nvim" }, -- Ensure Noice is loaded before extension
+    { "nvim-telescope/telescope-ui-select.nvim" }, -- Added for vim.ui.select integration
   },
   opts = {
     defaults = {
@@ -24,10 +25,16 @@ return {
           reverse_directories = true
         }
       },
+    },
+    extensions = {
+      ["ui-select"] = {
+        require("telescope.themes").get_dropdown {}
+      }
     }
   },
   config = function(_, opts)
     require("telescope").setup(opts)
     require("telescope").load_extension("noice")
+    require("telescope").load_extension("ui-select") -- Load ui-select extension
   end,
 }

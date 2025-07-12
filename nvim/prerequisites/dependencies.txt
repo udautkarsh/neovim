@@ -1,0 +1,44 @@
+
+1) Needed when mason tool installer fails to install black and ruff. [failed on ubuntu 25.04]
+   sudo apt install -y python3.13-venv
+
+2) Force copilot to initialte authentication
+   rm -rf ~/.config/github-copilot/hosts.json
+   Or 
+   :Copilot auth signout
+   :Copilot auth signin
+
+# mason related   
+   curl -fsSL https://install.julialang.org | sh
+   sudo apt install cargo -y 
+   sudo apt install luarocks -y
+   sudo apt install php composer -y
+
+6) For remote plugin to work:
+
+   sudo apt update
+   sudo apt install docker.io
+   sudo systemctl enable docker
+   sudo systemctl start docker
+   curl -L -o devpod "https://github.com/loft-sh/devpod/releases/latest/download/devpod-linux-amd64"
+   sudo install -c -m 0755 devpod /usr/local/bin
+   rm -f devpod
+   devpod provider add docker
+
+8) copilot related
+   sudo apt install lynx ripgrep -y
+   pip install tiktoken
+
+# treesitter 
+   sudo npm install -g tree-sitter-cli
+
+# snacks
+
+   sudo apt install texlive-latex-base -y
+   sudo npm install -g @mermaid-js/mermaid-cli 
+   sudo apt install fd-find -y
+
+# vim.provider
+
+   pip3 install pynvim --break-system-packages
+   sudo npm install -g neovim

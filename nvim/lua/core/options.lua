@@ -58,19 +58,23 @@ vim.opt.spelllang = 'en_us'
 -- Enable mouse support
 opt.mouse = "a" -- Enable mouse support in all modes
 
-
-
+--[[
 -- vim diagnostic configurations
-
-
 vim.diagnostic.config({
   float = { 
     border = "rounded",
     source = "always", -- Show source in diagnostic popup window
     header = "", -- Remove "Diagnostics" header
     prefix = "", -- Remove prefix from diagnostic message
+    win_opts = {
+      wrap = true,
+    },
+    max_width = math.floor(vim.o.columns * 0.8),
   },
+
+  --[[
   virtual_text = {
+    enabled = false,
     prefix = "●", -- Change the prefix for virtual text diagnostics
     spacing = 4,
     source = "always",
@@ -78,21 +82,18 @@ vim.diagnostic.config({
       min = vim.diagnostic.severity.HINT,
     },
     format = function(diagnostic)
-      return string.format("%s: %s", diagnostic.source, diagnostic.message)
+      return string.format("%s", diagnostic.message)
     end,
   },
-  signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = "E", -- Error sign
-      [vim.diagnostic.severity.WARN] = "W",  -- Warning sign
-      [vim.diagnostic.severity.INFO] = "I",  -- Info sign
-      [vim.diagnostic.severity.HINT] = "H",  -- Hint sign
-    }
-  },
+
+  virtual_lines = true,
+  signs = true,
   severity_sort = true,
   update_in_insert = true,
   underline = true,
 })
+--]]
+
 
 -- Remove trailing whitespace on save for yaml files
 vim.api.nvim_create_autocmd("BufWritePre", {
@@ -117,3 +118,20 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.softtabstop = 2
   end,
 })
+
+-- Remove any new lines at he end 
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.yaml", "*.yml" },
+  callback = function()
+    local last_line = vim.fn.line("$")
+    for lnum = last_line, 1, -1 do
+      local line = vim.fn.getline(lnum)
+      if line:match("^%s*$") then
+        vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, {})
+      else
+        break
+      end
+    end
+  end,
+})
+
