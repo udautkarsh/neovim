@@ -15,7 +15,7 @@ return {
         command = "black",
         args = {
           "--quiet",              -- suppress output unless errors occur
-          "--line-length", "120", -- set maximum line length
+          "--line-length", "100", -- set maximum line length
           "-",
         },
         stdin = true,
@@ -50,7 +50,7 @@ return {
         args = {
           "check",
           "--fix",
-          "--line-length=120",
+          "--line-length=100",
           "--extend-select=I", -- Enable import sorting
           "--stdin-filename",
           "$FILENAME",
@@ -63,7 +63,7 @@ return {
         command = "ruff",
         args = {
           "format",
-          "--line-length=120",
+          "--line-length=100",
           "--stdin-filename",
           "$FILENAME",
           "-",
