@@ -7,6 +7,7 @@ rustup update stable
 rustup default stable
 rustc --version  # should now show 1.84.0 or newer
 
+sudo apt install ansible -y
 
 1) Needed when mason tool installer fails to install black and ruff. [failed on ubuntu 25.04]
    sudo apt install -y python3.13-venv
