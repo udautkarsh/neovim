@@ -1,3 +1,8 @@
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
+#source ~/.bashrc    
+source ~/.zshrc
+
 
 1) Needed when mason tool installer fails to install black and ruff. [failed on ubuntu 25.04]
    sudo apt install -y python3.13-venv
@@ -27,7 +32,7 @@
 
 8) copilot related
    sudo apt install lynx ripgrep -y
-   pip install tiktoken
+   pip install tiktoken --break-system-packages
 
 # treesitter 
    sudo npm install -g tree-sitter-cli
