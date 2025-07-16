@@ -1,0 +1,127 @@
+return {
+    "nvim-tree/nvim-tree.lua",
+    lazy = false,
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = {
+      on_attach = "default",
+      hijack_cursor = false,
+      auto_reload_on_write = true,
+      disable_netrw = false,
+      hijack_netrw = true,
+      hijack_unnamed_buffer_when_opening = false,
+      sort = {
+        sorter = "name",
+        folders_first = true,
+      },
+      view = {
+        side = "left",
+        width = 35,
+        number = true,
+        relativenumber = false,
+        signcolumn = "yes",
+      },
+      renderer = {
+        highlight_git = true,
+        highlight_opened_files = "name",
+        icons = {
+          web_devicons = {
+            file = {
+              enable = true,
+              color = true,
+            },
+            folder = {
+              enable = false,
+              color = true,
+            },
+          },
+          git_placement = "before",
+          modified_placement = "after",
+          hidden_placement = "after",
+          diagnostics_placement = "signcolumn",
+          bookmarks_placement = "signcolumn",
+          padding = {
+            icon = " ",
+            folder_arrow = " ",
+          },
+          symlink_arrow = " ➛ ",
+          show = {
+            file = true,
+            folder = true,
+            git = true,
+            modified = true,
+          },
+          glyphs = {
+            default = "",
+            symlink = "",
+            modified = "●",
+            hidden = "󰜌",
+            folder = {
+              arrow_closed = "",
+              arrow_open = "",
+              default = "",
+              open = "",
+              empty = "",
+              empty_open = "",
+              symlink = "",
+              symlink_open = "",
+            },
+            git = {
+              unstaged  = "✱",
+              staged    = "✓",
+              unmerged  = "",
+              renamed   = "➜",
+              untracked = "✚",
+              deleted   = "",
+              ignored   = "◌",
+            },
+          },
+        },
+      },
+      git = {
+        enable = true,
+        show_on_dirs = true,
+        show_on_open_dirs = true,
+        timeout = 400,
+      },
+      modified = {
+        enable = true,
+        show_on_dirs = true,
+        show_on_open_dirs = true,
+      },
+      update_focused_file = {
+        enable = true,
+        update_root = {
+          enable = false,
+        },
+      },
+      filters = {
+        enable = true,
+        dotfiles = true,
+        git_ignored = true,
+      },
+  
+    },
+  
+    config = function(_, opts)
+      vim.g.loaded_netrw = 1
+      vim.g.loaded_netrwPlugin = 1
+      vim.opt.termguicolors = true
+      require("nvim-tree").setup(opts)
+  
+      vim.api.nvim_create_autocmd("BufWinEnter", {
+        callback = function(args)
+          local bufname = vim.api.nvim_buf_get_name(args.buf)
+          if bufname ~= "" and vim.fn.isdirectory(bufname) == 0 then
+            local ok, api = pcall(require, "nvim-tree.api")
+            if ok then
+              api.tree.open()
+              vim.api.nvim_del_autocmd(args.id)
+            end
+          end
+        end,
+      })
+    end
+  }
+  
