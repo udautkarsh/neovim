@@ -1,45 +1,54 @@
--- Code Tree Support / Syntax Highlighting
+-- File: plugins/treesitter.lua
 return {
-  -- https://github.com/nvim-treesitter/nvim-treesitter
   'nvim-treesitter/nvim-treesitter',
   event = "BufReadPre",
   dependencies = {
-    -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     'nvim-treesitter/nvim-treesitter-textobjects',
   },
-  build = ':TSUpdate',
+  build = ':TSUpdateSync',
   opts = {
-    highlight = {
-      enable = true,
-    },
-    indent = { enable = true },
-    auto_install = true, -- automatically install syntax support when entering new file type buffer
+    -- 1. Store parsers in a cache directory you own
+    parser_install_dir = vim.fn.stdpath("cache") .. "/treesitter-parsers",
+
+    -- 2. Core features
+    highlight    = { enable = true },
+    indent       = { enable = true },
+    auto_install = true,    -- we manage installs ourselves
+    sync_install = true,    -- do installs asynchronously
+
+    -- 3. Only these languages will ever be (auto)installed
     ensure_installed = {
-      'lua',
-      'python',
-      -- 'javascript',
-      'typescript',
-      'html',
-      'css',
-      'json',
-      'yaml',
-      'bash',
-      'markdown',
-      'markdown_inline',
-      'vim',
-      'gitcommit',
-      'git_rebase',
-      'diff',
-      'git_config',
-      -- 'gitcommit',
-      'gitignore',
-      'gitattributes',
-      'ninja',
-      'rst',
+      "lua",
+      "python",
+      "bash",
+      "vim",
+      "html",
+      "css",
+      "json",
+      "yaml",
     },
   },
   config = function(_, opts)
-    local configs = require("nvim-treesitter.configs")
-    configs.setup(opts)
-  end
+    -- Prepend parser dir so installed grammars are recognized
+    vim.opt.runtimepath:prepend(opts.parser_install_dir)
+
+    -- Apply basic setup
+    require("nvim-treesitter.configs").setup(opts)
+
+    -- Auto-install missing parsers in the background
+    local parsers   = require("nvim-treesitter.parsers")
+    local to_install = {}
+    for _, lang in ipairs(opts.ensure_installed) do
+      if not parsers.has_parser(lang) then
+        table.insert(to_install, lang)
+      end
+    end
+
+    if #to_install > 0 then
+      -- Defer so it doesn’t block startup
+      vim.schedule(function()
+        vim.cmd("TSInstall " .. table.concat(to_install, " "))
+      end)
+    end
+  end,
 }
