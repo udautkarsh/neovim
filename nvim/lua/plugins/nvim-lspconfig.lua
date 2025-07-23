@@ -154,9 +154,10 @@ return {
         'pylint',
         'jsonlint',
         'shellcheck',
-        'ansible-lint', -- Added ansible-lint for linting Ansible playbooks.
-        'ruff',         -- ADDED: Ruff formatter/linter.
-        'prettier',     -- ADDED: Prettier for yaml formatting.
+        'ansible-lint', 
+        'ruff',         
+        'prettier',     
+        -- 'llm-ls',
       },
       auto_update = true,
       run_on_start = true,

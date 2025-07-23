@@ -19,7 +19,7 @@ return {
     pylint.args = {
       "-f", 
       "json", -- Use colored output
-      "--max-line-length=100", 
+      "--max-line-length=120", 
       "--ignore-comments", "yes", 
       "--from-stdin",
       function()

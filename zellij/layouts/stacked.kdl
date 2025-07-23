@@ -1,0 +1,24 @@
+layout {
+  pane stacked=true {
+    pane command="kubectl" {
+      args "get" "all"
+    }
+    pane command="expect" {
+      args "/home/uday/myworks/project-works/lab/slc/utilities/admin4001.exp"
+    }
+    pane command="expect" {
+      args "/home/uday/myworks/project-works/lab/slc/utilities/admin4003.exp"
+    }
+    pane command="expect" {
+      args "/home/uday/myworks/project-works/lab/slc/utilities/admin4007.exp"
+    }
+    pane command="expect" {
+      args "/home/uday/myworks/project-works/lab/slc/utilities/learn1000.exp"
+    }
+  }
+
+  pane size=1 borderless=true {
+    plugin location="zellij:status-bar"
+  }
+}
+

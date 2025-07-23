@@ -1,0 +1,75 @@
+layout {
+
+  tab name="local-pc" {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane command="kubectl" {
+         args "get" "all"
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+  }
+  tab name="bastion1" {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane command="ssh" {
+         args "usingh@bastion1" 
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+  }
+
+
+  tab name="admin4001" {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane command="expect" {
+         args "/home/uday/myworks/project-works/lab/slc/utilities/admin4001.exp"
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+  }
+
+  tab name="admin4003" {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane command="expect" {
+         args "/home/uday/myworks/project-works/lab/slc/utilities/admin4003.exp"
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+  }
+
+  tab name="admin4007" {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane command="expect" {
+         args "/home/uday/myworks/project-works/lab/slc/utilities/admin4007.exp"
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+  }
+
+  tab name="learn1000" {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane command="expect" {
+         args "/home/uday/myworks/project-works/lab/slc/utilities/learn1000.exp"
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+  }
+
+}
