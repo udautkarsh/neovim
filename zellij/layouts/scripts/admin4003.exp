@@ -1,0 +1,37 @@
+#!/usr/bin/expect -f
+set timeout 60
+
+set password "HatlessPenguins!23"
+
+set ns_raw [exec sh -c "kubectl config view --minify | grep namespace"]
+regexp {namespace:\s+(\S+)} $ns_raw match namespace
+
+spawn kubectl virt ssh root@vmi/admin4001.$namespace
+
+expect {
+    -re "Are you sure you want to continue connecting.*" {
+        send "yes\r"
+        exp_continue
+    }
+    -re "(?i)password:" {
+        send "$password\r"
+        exp_continue
+    }
+    -re "#|\\$" {
+        # Successfully logged in (prompt detected)
+    }
+    timeout {
+        puts "ERROR: Timeout waiting for SSH login"
+        exit 1
+    }
+}
+
+send "$password\r"
+expect "#"
+send "hostname\r"
+send "su admin\r"
+send "cd\r"
+send "scyld-nodectl -ia1 ssh\r"
+send "export TERM=xterm-256color\r"
+send "export COLUMNS=172\r"
+interact

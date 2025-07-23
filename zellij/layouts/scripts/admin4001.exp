@@ -1,0 +1,41 @@
+#!/usr/bin/expect -f
+
+set timeout 60
+log_user 1 ;# enables stdout logging for debugging
+
+# Step 1: Get namespace from kubectl context
+set ns_raw [exec sh -c "kubectl config view --minify | grep namespace"]
+regexp {namespace:\s+(\S+)} $ns_raw match namespace
+
+set password "HatlessPenguins!23"
+
+# Step 2: Start SSH session via kubectl
+spawn kubectl virt ssh root@vmi/admin4001.$namespace
+
+# Step 3: Handle first-time host key prompt and password
+expect {
+    -re "Are you sure you want to continue connecting.*" {
+        send "yes\r"
+        exp_continue
+    }
+    -re "(?i)password:" {
+        send "$password\r"
+        exp_continue
+    }
+    -re "#|\\$" {
+        # Successfully logged in (prompt detected)
+    }
+    timeout {
+        puts "ERROR: Timeout waiting for SSH login"
+        exit 1
+    }
+}
+
+# Step 4: Post-login commands
+send "hostname\r"
+send "su admin\r"
+send "cd\r"
+send "export TERM=xterm-256color\r"
+send "export COLUMNS=172\r"
+interact
+
