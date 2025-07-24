@@ -33,6 +33,8 @@ expect {
 
 # Step 4: Post-login commands
 send "hostname\r"
+send "export TERM=xterm-256color\r"
+send "export COLUMNS=172\r"
 send "su admin\r"
 send "cd\r"
 send "export TERM=xterm-256color\r"
