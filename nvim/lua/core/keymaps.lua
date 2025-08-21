@@ -100,6 +100,7 @@ vim.keymap.set("n", "<C-Down>", "<C-w>j", { desc = "Move down" })
 
 
 -- Telescope
+
 keymap.set('n', '<leader><leader>', require('telescope.builtin').find_files, {})                                        -- fuzzy find files in project
 keymap.set('n', '<leader>fg', require('telescope.builtin').live_grep, {})                                               -- grep file contents in project
 keymap.set('n', '<leader>fb', require('telescope.builtin').buffers, {})                                                 -- fuzzy find open buffers
@@ -114,12 +115,6 @@ keymap.set('n', '<leader>ft', function()                                        
   if not success or not node then return end;
   require('telescope.builtin').live_grep({ search_dirs = { node.absolute_path } })
 end)
--- Telescope Git pickers
-keymap.set('n', '<leader>tg', require('telescope.builtin').git_status, { desc = "Telescope: Git status" })
-keymap.set('n', '<leader>tb', require('telescope.builtin').git_branches, { desc = "Telescope: Git branches" })
-keymap.set('n', '<leader>tc', require('telescope.builtin').git_commits, { desc = "Telescope: Git commits" })
-keymap.set('n', '<leader>tC', require('telescope.builtin').git_bcommits, { desc = "Telescope: Buffer commits" })
-keymap.set('n', '<leader>ts', require('telescope.builtin').git_stash, { desc = "Telescope: Git stash" })
 
 
 -- Harpoon
@@ -141,22 +136,22 @@ keymap.set("n", "<leader>xr", ":call VrcQuery()<CR>") -- Run REST query
 -- LSP
 keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "Show hover documentation" })
 
-keymap.set('n', 'gd', vim.lsp.buf.definition, { desc = "Go to definition" })
-keymap.set('n', 'gb', '<C-o>', { desc = 'Go back in jump list' })
+--keymap.set('n', 'gd', vim.lsp.buf.definition, { desc = "Go to definition" })
+--keymap.set('n', 'gb', '<C-o>', { desc = 'Go back in jump list' })
 -- alterntive
 keymap.set('n', '<C-CR>', vim.lsp.buf.definition, { desc = "Go to definition" })
 keymap.set('n', '<C-BS>', '<C-o>', { desc = 'Go back in jump list' })
 
-keymap.set('n', 'gi', vim.lsp.buf.implementation, { desc = "Go to implementation" })
-keymap.set('n', 'gt', vim.lsp.buf.type_definition, { desc = "Go to type definition" })
-keymap.set('n', 'gr', vim.lsp.buf.references, { desc = "Go to references" })
-keymap.set('n', 'gs', vim.lsp.buf.signature_help, { desc = "Show signature help" })
+keymap.set('n', 'ti', vim.lsp.buf.implementation, { desc = "Go to implementation" })
+keymap.set('n', 'tt', vim.lsp.buf.type_definition, { desc = "Go to type definition" })
+-- keymap.set('n', 'gr', vim.lsp.buf.references, { desc = "Go to references" })
+-- keymap.set('n', 'gs', vim.lsp.buf.signature_help, { desc = "Show signature help" })
 keymap.set('n', 'rr', vim.lsp.buf.rename, { desc = "Rename symbol" }) -- or use <leader>rn
-keymap.set('n', 'gf', function() vim.lsp.buf.format { async = true } end, { desc = "Format buffer" })
-keymap.set('n', 'ga', vim.lsp.buf.code_action, { desc = "Code action" })
-keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "Show diagnostics" })
-keymap.set('n', 'gp', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
-keymap.set('n', 'gn', vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
+--keymap.set('n', 'gf', function() vim.lsp.buf.format { async = true } end, { desc = "Format buffer" })
+-- keymap.set('n', 'ga', vim.lsp.buf.code_action, { desc = "Code action" })
+-- keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "Show diagnostics" })
+--keymap.set('n', 'gp', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
+-- keymap.set('n', 'gn', vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
 keymap.set('n', 'tr', vim.lsp.buf.document_symbol, { desc = "Document symbols" })
 keymap.set('i', '<C-Space>', vim.lsp.buf.completion, { desc = "LSP completion" })
 
@@ -184,8 +179,8 @@ keymap.set("n", "<leader>gt", ":Gitsigns toggle_current_line_blame<CR>", {}) -- 
 -- vim-figitive
 keymap.set("n", "<leader>gs", ":Git<CR>", { desc = "Open Git status" }) -- open git status
 keymap.set("n", "<leader>gl", ":Git log<CR>", { desc = "Open Git log" }) -- open git log
-keymap.set("n", "<leader>gc", ":Git commit<CR>", { desc = "Open Git commit" }) -- open git commit
-keymap.set("n", "<leader>gp", ":Git push<CR>", { desc = "Git push" }) -- push changes
+--keymap.set("n", "<leader>gc", ":Git commit<CR>", { desc = "Open Git commit" }) -- open git commit
+--keymap.set("n", "<leader>gp", ":Git push<CR>", { desc = "Git push" }) -- push changes
 keymap.set("n", "<leader>gf", ":Git fetch<CR>", { desc = "Git fetch" }) -- fetch changes
 keymap.set("n", "<leader>gP", ":Git pull<CR>", { desc = "Git pull" }) -- pull changes
 keymap.set("n", "<leader>gd", ":Git diff<CR>", { desc = "Git diff" }) -- show git diff
@@ -198,6 +193,19 @@ keymap.set("n", "<leader>gC", ":Git checkout<CR>", { desc = "Git checkout" }) --
 keymap.set("n", "<leader>gM", ":Git merge<CR>", { desc = "Git merge" }) -- merge branch
 keymap.set("n", "<leader>gL", ":Git log --oneline<CR>", { desc = "Git log oneline" }) -- show git log in one line
 keymap.set("n", "<leader>gO", ":Git log --oneline --graph<CR>", { desc = "Git log oneline graph" }) -- show git log in one line with graph
+
+-- real implementation of gb is in plugins/telescope-nvim.lua
+-- keymap.set('n', '<leader>gb', require('telescope.builtin').git_branches, { desc = "Telescope: Git branches" })
+
+
+
+--[[ Telescope Git pickers
+keymap.set('n', '<leader>tg', require('telescope.builtin').git_status, { desc = "Telescope: Git status" })
+keymap.set('n', '<leader>tb', require('telescope.builtin').git_branches, { desc = "Telescope: Git branches" })
+keymap.set('n', '<leader>tc', require('telescope.builtin').git_commits, { desc = "Telescope: Git commits" })
+keymap.set('n', '<leader>tC', require('telescope.builtin').git_bcommits, { desc = "Telescope: Buffer commits" })
+keymap.set('n', '<leader>ts', require('telescope.builtin').git_stash, { desc = "Telescope: Git stash" })
+--]]
 
 
 -- noice.nvim
