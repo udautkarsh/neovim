@@ -187,7 +187,7 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 local max_buffers = augroup("MaxBuffers", { clear = true })
 
 -- Maximum number of open buffers (change this value as needed)
-vim.g.max_open_buffers = 5
+vim.g.max_open_buffers = 20  -- Increased from 5 to 20
 
 autocmd("BufEnter", {
   group = max_buffers,

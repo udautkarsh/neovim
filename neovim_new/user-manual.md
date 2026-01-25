@@ -75,17 +75,42 @@ Resize split windows using `Ctrl + Shift + Arrow` keys.
 | Key | Action |
 |-----|--------|
 | `<Space>e` | Toggle file explorer |
+| `<Space>;` | Dashboard |
 | `<Space>ff` | Find files |
 | `<Space>fg` | Live grep (search in files) |
+| `<Space>fw` | Grep word under cursor |
 | `<Space>fb` | Find buffers |
 | `<Space>fr` | Recent files |
+| `<Space>fc` | Find config files |
 | `<Space>fh` | Help tags |
 | `<Space>fk` | Keymaps |
-| `<Space><Space>` | Smart picker |
+| `<Space>fm` | Marks |
+| `<Space>fp` | Projects |
+| `<Space>fs` | LSP Symbols |
+| `<Space>fd` | Diagnostics |
+| `<Space>ft` | Todo comments |
+| `<Space>/` | Grep open buffers |
+| `<Space><Space>` | Smart picker (auto-detect) |
+
+### Explorer Configuration
+
+To adjust the explorer width, edit `lua/plugins/snacks.lua`:
+
+```lua
+styles = {
+  explorer = {
+    width = 25,  -- Change this number (default: 25-35)
+  },
+}
+```
+
+**Recommended widths:** 25 (compact), 30 (default), 35 (wide)
 
 ---
 
 ## 📄 Buffers
+
+Working with multiple open files (buffers) in Neovim.
 
 | Key | Action |
 |-----|--------|
@@ -93,25 +118,61 @@ Resize split windows using `Ctrl + Shift + Arrow` keys.
 | `Shift + l` | Next buffer |
 | `[b` | Previous buffer |
 | `]b` | Next buffer |
+| `<Space>bb` | Switch to other buffer (last buffer) |
 | `<Space>bd` | Delete buffer |
-| `<Space>bb` | Switch to other buffer |
+| `<Space>bo` | Delete other buffers |
+| `<Space>ba` | Delete all buffers |
+| `<Space>bl` | **List buffers** (recommended) |
+| `<Space>fb` | Find buffers (alternative) |
+
+**Tip:** Use `<Space>bl` (Buffer List) to quickly jump to any open file by typing part of its name.
+
+**Note:** Maximum 20 buffers open at once (auto-closes oldest). Change in `lua/config/autocmds.lua`.
 
 ---
 
 ## 🔀 Git
 
-### Git Commands (snacks.nvim)
+### Git Sync Status Indicator
+
+In the status line (bottom), next to the branch name, you'll see a git sync indicator:
+
+| Icon | Meaning |
+|------|---------|
+| `●` | Idle (gray) |
+| `⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏` | Syncing (blue, animated) |
+| `✓` | Success (green, shows for 2 seconds) |
+| `✗` | Error (red, click to see error details) |
+
+### Git Commands (Background Operations)
+
+These commands run silently in the background and only show a terminal if they fail.
 
 | Key | Action |
 |-----|--------|
+| `<Space>gp` | Git pull (background) |
+| `<Space>gP` | Git push (background) |
+| `<Space>gf` | Git fetch (background) |
 | `<Space>gg` | Open Lazygit |
-| `<Space>gl` | Git log |
+| `<Space>gl` | Git log (project) |
 | `<Space>gL` | Git log (current file) |
-| `<Space>gb` | Git blame line |
-| `<Space>gB` | Git browse (open in GitHub/GitLab) |
 | `<Space>gs` | Git status (picker) |
 | `<Space>gc` | Git commits (picker) |
 | `<Space>gd` | Git diff (picker) |
+| `<Space>gb` | Git branches (local only) |
+| `<Space>gbb` | Git branches (all - local + remote) |
+| `<Space>gbl` | Git blame line (popup) |
+| `<Space>gB` | Git browse (open in GitHub/GitLab) |
+
+**Tip:** Watch the status line indicator when running `<Space>gp` - it will spin during the pull and show a checkmark when complete.
+
+### Inline Git Blame
+
+| Key | Action |
+|-----|--------|
+| `<Space>tb` | Toggle inline blame (enabled by default) |
+
+Shows git blame info (author, date) at the end of the current line.
 
 ### Hunk Navigation (gitsigns)
 
@@ -126,15 +187,13 @@ A **hunk** is a group of consecutive changed lines.
 
 | Key | Action |
 |-----|--------|
-| `<Space>hs` | Stage hunk |
-| `<Space>hr` | Reset hunk (undo changes) |
-| `<Space>hS` | Stage entire buffer |
-| `<Space>hu` | Undo stage hunk |
-| `<Space>hR` | Reset entire buffer |
-| `<Space>hp` | Preview hunk (see changes) |
-| `<Space>hb` | Blame line (who changed it) |
-| `<Space>hB` | Toggle inline blame |
-| `<Space>hd` | Diff this file |
+| `<Space>ghs` | Stage hunk |
+| `<Space>ghr` | Reset hunk (undo changes) |
+| `<Space>ghS` | Stage entire buffer |
+| `<Space>ghu` | Undo stage hunk |
+| `<Space>ghR` | Reset entire buffer |
+| `<Space>ghp` | Preview hunk (see changes) |
+| `<Space>ghd` | Diff this file |
 
 ### Git Status Icons (Explorer)
 
@@ -166,6 +225,13 @@ A **hunk** is a group of consecutive changed lines.
 | `<Space>cf` | Format code |
 | `<Space>ci` | Toggle inlay hints |
 | `<Space>cd` | Line diagnostics |
+| `<Space>nd` | Generate docstring (Python/JS/TS/Lua) |
+
+**Docstring conventions:**
+- Python: Google style
+- JavaScript: JSDoc
+- TypeScript: TSDoc
+- Lua: EmmyLua
 
 ---
 
@@ -177,9 +243,15 @@ A **hunk** is a group of consecutive changed lines.
 | `<Space>q` | Quit |
 | `<Space>Q` | Quit all (force) |
 | `<Space>l` | Open Lazy (plugin manager) |
+| `<Space>.` | Toggle scratch buffer |
+| `<Space>S` | Select scratch buffer |
+| `<Space>rn` | Rename file |
+| `<Space>pp` | Toggle profiler |
 | `jk` or `jj` | Exit insert mode |
 | `<Esc>` | Clear search highlights |
 | `Ctrl + a` | Select all |
+| `Alt + c` | Toggle comment (line or selection) |
+| `Shift + ←/→/↑/↓` | Visual selection with arrow keys |
 
 ---
 
@@ -211,13 +283,18 @@ Works in normal, insert, and visual modes.
 
 | Key | Action |
 |-----|--------|
-| `<Space>z` | Zen mode |
-| `<Space>Z` | Zoom window |
+| `<Space>z` | Zen mode (distraction-free) |
+| `<Space>Z` | Zoom window (maximize) |
 | `<Space>uw` | Toggle word wrap |
-| `Alt+Shift+L` | Cycle line number modes: Both → Absolute → Relative → Both |
 | `<Space>us` | Toggle spelling |
-| `<Space>ud` | Toggle dim inactive |
-| `<Space>ui` | Toggle inlay hints |
+| `<Space>ud` | Toggle dim inactive windows |
+| `<Space>ui` or `<Space>uh` | Toggle inlay hints |
+| `<Space>uD` | Toggle diagnostics |
+| `<Space>uT` | Toggle treesitter |
+| `<Space>ug` | Toggle indent guides |
+| `<Space>un` | Show notification history |
+| `<Space>uN` | Dismiss all notifications |
+| `Alt+Shift+L` | Cycle line number modes: Both → Absolute → Relative → Both |
 
 ---
 
@@ -226,7 +303,9 @@ Works in normal, insert, and visual modes.
 | Key | Action |
 |-----|--------|
 | `<Space>tt` | Toggle terminal |
+| `Ctrl + /` | Toggle terminal (alternative) |
 | `<Esc><Esc>` | Exit terminal mode |
+| `Ctrl + h/j/k/l` | Navigate windows from terminal |
 
 ---
 
@@ -270,6 +349,8 @@ Works in normal, insert, and visual modes.
 | `Ctrl + u` | Scroll up (centered) |
 | `n` | Next search result (centered) |
 | `N` | Previous search result (centered) |
+| `]]` | Next reference (word under cursor) |
+| `[[` | Previous reference (word under cursor) |
 
 ---
 

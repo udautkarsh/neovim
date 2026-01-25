@@ -214,13 +214,6 @@ if command -v nvim &> /dev/null; then
     echo ""
     echo "  Run 'nvim' to start!"
     echo ""
-    echo "  Keybindings:"
-    echo "    <Space>e      - Toggle file explorer"
-    echo "    <Space>nd     - Generate docstring"
-    echo "    <Space>gg     - Open lazygit"
-    echo "    Alt+Enter     - Go to definition"
-    echo "    Alt+Left      - Go back"
-    echo ""
     echo "=============================================="
 else
     print_error "Installation failed. Please check the logs above."

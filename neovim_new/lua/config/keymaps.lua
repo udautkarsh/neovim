@@ -1,6 +1,14 @@
 local map = vim.keymap.set
 
 -- ============================================
+-- COMMENTING (Alt+c)
+-- ============================================
+-- Remap built-in comment operator from 'gc' to Alt+c
+map("n", "<A-c>", "gc", { remap = true, desc = "Comment operator" })
+map("n", "<A-c><A-c>", "gcc", { remap = true, desc = "Comment line" })
+map("v", "<A-c>", "gc", { remap = true, desc = "Comment selection" })
+
+-- ============================================
 -- GENERAL
 -- ============================================
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
@@ -21,6 +29,16 @@ map("n", "<C-a>", "gg<S-v>G", { desc = "Select all" })
 -- Better up/down (handles wrapped lines)
 map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+
+-- Shift+Arrow keys for visual selection (like regular editors)
+map("n", "<S-Up>", "v<Up>", { desc = "Select up" })
+map("n", "<S-Down>", "v<Down>", { desc = "Select down" })
+map("n", "<S-Left>", "v<Left>", { desc = "Select left" })
+map("n", "<S-Right>", "v<Right>", { desc = "Select right" })
+map("v", "<S-Up>", "<Up>", { desc = "Extend selection up" })
+map("v", "<S-Down>", "<Down>", { desc = "Extend selection down" })
+map("v", "<S-Left>", "<Left>", { desc = "Extend selection left" })
+map("v", "<S-Right>", "<Right>", { desc = "Extend selection right" })
 
 -- Keep cursor centered
 map("n", "<C-d>", "<C-d>zz", { desc = "Scroll down centered" })
@@ -45,8 +63,10 @@ map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 -- Window navigation (Ctrl + Arrow keys)
 map("n", "<C-Left>", "<C-w>h", { desc = "Go to left window" })
 map("n", "<C-Down>", "<C-w>j", { desc = "Go to lower window" })
-map("n", "<C-Up>", "<C-w>k", { desc = "Go to upper window" })
 map("n", "<C-Right>", "<C-w>l", { desc = "Go to right window" })
+
+-- Jump to Explorer with Ctrl+Up (simplified - just go left to explorer)
+map("n", "<C-Up>", "<C-w>h", { desc = "Jump to Explorer (go left)" })
 
 -- Resize windows (Ctrl + Shift + Arrow keys)
 map("n", "<C-S-Up>", "<cmd>resize -2<CR>", { desc = "Resize up" })

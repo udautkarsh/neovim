@@ -6,6 +6,10 @@
 return {
   "lewis6991/gitsigns.nvim",
   event = { "BufReadPre", "BufNewFile" },
+  keys = {
+    -- Global toggle for git blame (works everywhere)
+    { "<leader>tb", "<cmd>Gitsigns toggle_current_line_blame<CR>", desc = "Toggle Git Blame" },
+  },
   opts = {
     signs = {
       add = { text = "│" },
@@ -82,7 +86,6 @@ return {
       map("n", "<leader>hR", gs.reset_buffer, { desc = "Reset Buffer" })
       map("n", "<leader>hp", gs.preview_hunk, { desc = "Preview Hunk" })
       map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, { desc = "Blame Line" })
-      map("n", "<leader>hB", gs.toggle_current_line_blame, { desc = "Toggle Line Blame" })
       map("n", "<leader>hd", gs.diffthis, { desc = "Diff This" })
       map("n", "<leader>hD", function() gs.diffthis("~") end, { desc = "Diff This ~" })
 

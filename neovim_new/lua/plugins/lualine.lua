@@ -2,6 +2,14 @@
 -- Lualine - Statusline with git branch
 -- ============================================
 
+-- Global state for git sync operations
+_G.git_sync_status = {
+  state = "idle",     -- idle | syncing | success | error
+  command = "",       -- pull | push | fetch
+  error = "",         -- error message if failed
+  start_time = 0,     -- for animation
+}
+
 return {
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
@@ -19,6 +27,42 @@ return {
           "branch",
           icon = "",
           color = { fg = "#00d9ff", gui = "bold" },
+        },
+        {
+          -- Git sync status indicator
+          function()
+            local status = _G.git_sync_status
+            if status.state == "syncing" then
+              -- Spinning animation
+              local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+              local idx = math.floor((vim.loop.hrtime() / 1e8) % #spinner) + 1
+              return spinner[idx]
+            elseif status.state == "success" then
+              return "✓"
+            elseif status.state == "error" then
+              return "✗"
+            else
+              return "●"
+            end
+          end,
+          color = function()
+            local status = _G.git_sync_status
+            if status.state == "syncing" then
+              return { fg = "#00d9ff" }  -- Blue for syncing
+            elseif status.state == "success" then
+              return { fg = "#00ff9f" }  -- Green for success
+            elseif status.state == "error" then
+              return { fg = "#ff0055" }  -- Red for error
+            else
+              return { fg = "#666666" }  -- Gray for idle
+            end
+          end,
+          on_click = function()
+            -- Click on error to show details
+            if _G.git_sync_status.state == "error" then
+              vim.notify(_G.git_sync_status.error, vim.log.levels.ERROR)
+            end
+          end,
         },
         {
           "diff",

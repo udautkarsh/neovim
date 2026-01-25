@@ -114,14 +114,17 @@ return {
       follow_file = true,  -- Follow current file
       -- Keep explorer open when selecting files
       win = {
-        list = {
-          keys = {
-            -- Open file but keep explorer open (use 'o' or Enter)
-            ["<CR>"] = { "edit", close = false },
-            ["o"] = { "edit", close = false },
-            -- Use 'O' to open and close explorer
-            ["O"] = { "edit", close = true },
-          },
+        wo = {},
+        bo = {},
+        style = "explorer",
+      },
+      list = {
+        keys = {
+          -- Open file but keep explorer open (use 'o' or Enter)
+          ["<CR>"] = { "edit", close = false },
+          ["o"] = { "edit", close = false },
+          -- Use 'O' to open and close explorer
+          ["O"] = { "edit", close = true },
         },
       },
     },
@@ -330,6 +333,9 @@ return {
       notification = {
         wo = { wrap = true },
       },
+      explorer = {
+        width = 25,  -- Explorer width (change this to adjust width)
+      },
     },
   },
 
@@ -341,12 +347,14 @@ return {
     { "<leader>;", function() Snacks.dashboard() end, desc = "Dashboard" },
 
     -- Explorer (toggle) - always opens at initial path passed to nvim
-    { "<leader>e", function() Snacks.explorer({ cwd = vim.g.project_root }) end, desc = "Toggle Explorer" },
+    { "<leader>e", function() 
+      Snacks.explorer({ cwd = vim.g.project_root }) 
+    end, desc = "Toggle Explorer" },
 
     -- Picker (Fuzzy Finder)
-    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
-    { "<leader>fg", function() Snacks.picker.grep() end, desc = "Grep" },
-    { "<leader>fw", function() Snacks.picker.grep_word() end, desc = "Grep Word", mode = { "n", "x" } },
+    { "<leader>ff", function() Snacks.picker.files({ cwd = vim.g.project_root }) end, desc = "Find Files" },
+    { "<leader>fg", function() Snacks.picker.grep({ cwd = vim.g.project_root }) end, desc = "Grep" },
+    { "<leader>fw", function() Snacks.picker.grep_word({ cwd = vim.g.project_root }) end, desc = "Grep Word", mode = { "n", "x" } },
     { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent Files" },
     { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Config Files" },
@@ -358,7 +366,7 @@ return {
     { "<leader>fd", function() Snacks.picker.diagnostics() end, desc = "Diagnostics" },
     { "<leader>ft", function() Snacks.picker.todo_comments() end, desc = "Todo Comments" },
     { "<leader>/", function() Snacks.picker.grep_buffers() end, desc = "Grep Buffers" },
-    { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Picker" },
+    { "<leader><space>", function() Snacks.picker.smart({ cwd = vim.g.project_root }) end, desc = "Smart Picker" },
 
     -- Git
     { "<leader>gg", function() Snacks.lazygit({ cwd = Snacks.git.get_root() }) end, desc = "Lazygit" },
@@ -370,12 +378,12 @@ return {
     { "<leader>gc", function() Snacks.picker.git_log({ cwd = Snacks.git.get_root() }) end, desc = "Git Commits" },
     { "<leader>gd", function() Snacks.picker.git_diff({ cwd = Snacks.git.get_root() }) end, desc = "Git Diff" },
     { "<leader>gb", function()
-      -- Async branch picker
+      -- Local branches only
       local root = Snacks.git.get_root()
       vim.system({ "git", "-C", root, "branch", "--format=%(refname:short)" }, { text = true }, function(obj)
         vim.schedule(function()
           local branches = vim.split(obj.stdout or "", "\n", { trimempty = true })
-          vim.ui.select(branches, { prompt = "Switch to branch:" }, function(choice)
+          vim.ui.select(branches, { prompt = "Switch to branch (local):" }, function(choice)
             if choice then
               vim.system({ "git", "-C", root, "checkout", choice }, { text = true }, function(res)
                 vim.schedule(function()
@@ -394,14 +402,25 @@ return {
       end)
     end, desc = "Git Branches (Local)" },
     { "<leader>gbb", function()
-      -- Async all branches picker
+      -- All branches (local + remote) with remotes/ prefix
       local root = Snacks.git.get_root()
-      vim.system({ "git", "-C", root, "branch", "-a", "--format=%(refname:short)" }, { text = true }, function(obj)
+      vim.system({ "git", "-C", root, "branch", "-a" }, { text = true }, function(obj)
         vim.schedule(function()
-          local branches = vim.split(obj.stdout or "", "\n", { trimempty = true })
+          local lines = vim.split(obj.stdout or "", "\n", { trimempty = true })
+          local branches = {}
+          for _, line in ipairs(lines) do
+            -- Remove leading * and spaces
+            local branch = line:gsub("^%s*%*?%s*", "")
+            -- Skip HEAD pointer
+            if not branch:match("HEAD") then
+              table.insert(branches, branch)
+            end
+          end
+          
           vim.ui.select(branches, { prompt = "Switch to branch (all):" }, function(choice)
             if choice then
-              local branch = choice:gsub("^origin/", "")
+              -- Handle remote branches: remotes/origin/feature -> feature
+              local branch = choice:gsub("^remotes/[^/]+/", "")
               vim.system({ "git", "-C", root, "checkout", branch }, { text = true }, function(res)
                 vim.schedule(function()
                   if res.code == 0 then
@@ -418,14 +437,115 @@ return {
         end)
       end)
     end, desc = "Git Branches (All)" },
-    { "<leader>gp", function() Snacks.terminal.open("git pull", { cwd = Snacks.git.get_root(), interactive = false }) end, desc = "Git Pull" },
-    { "<leader>gP", function() Snacks.terminal.open("git push", { cwd = Snacks.git.get_root(), interactive = false }) end, desc = "Git Push" },
-    { "<leader>gf", function() Snacks.terminal.open("git fetch --all", { cwd = Snacks.git.get_root(), interactive = false }) end, desc = "Git Fetch" },
+    { "<leader>gp", function() 
+      -- Background git pull with status indicator
+      local root = Snacks.git.get_root()
+      _G.git_sync_status = { state = "syncing", command = "pull", error = "", start_time = vim.loop.hrtime() }
+      
+      vim.system({ "git", "-C", root, "pull" }, { text = true }, function(result)
+        vim.schedule(function()
+          if result.code == 0 then
+            -- Success
+            _G.git_sync_status = { state = "success", command = "pull", error = "" }
+            vim.notify("✓ Git pull completed", vim.log.levels.INFO)
+            vim.cmd("checktime")  -- Reload changed files
+            
+            -- Reset to idle after 2 seconds
+            vim.defer_fn(function()
+              _G.git_sync_status = { state = "idle", command = "", error = "" }
+            end, 2000)
+          else
+            -- Error - show terminal with output
+            _G.git_sync_status = { state = "error", command = "pull", error = result.stderr or result.stdout or "Unknown error" }
+            vim.notify("✗ Git pull failed - check terminal", vim.log.levels.ERROR)
+            
+            Snacks.terminal.open("git pull", { 
+              cwd = root,
+              interactive = false,
+              win = { 
+                position = "bottom", 
+                height = 0.2,
+                relative = "win"
+              }
+            })
+          end
+        end)
+      end)
+    end, desc = "Git Pull" },
+    { "<leader>gP", function() 
+      -- Background git push with status indicator
+      local root = Snacks.git.get_root()
+      _G.git_sync_status = { state = "syncing", command = "push", error = "", start_time = vim.loop.hrtime() }
+      
+      vim.system({ "git", "-C", root, "push" }, { text = true }, function(result)
+        vim.schedule(function()
+          if result.code == 0 then
+            -- Success
+            _G.git_sync_status = { state = "success", command = "push", error = "" }
+            vim.notify("✓ Git push completed", vim.log.levels.INFO)
+            
+            -- Reset to idle after 2 seconds
+            vim.defer_fn(function()
+              _G.git_sync_status = { state = "idle", command = "", error = "" }
+            end, 2000)
+          else
+            -- Error - show terminal with output
+            _G.git_sync_status = { state = "error", command = "push", error = result.stderr or result.stdout or "Unknown error" }
+            vim.notify("✗ Git push failed - check terminal", vim.log.levels.ERROR)
+            
+            Snacks.terminal.open("git push", { 
+              cwd = root,
+              interactive = false,
+              win = { 
+                position = "bottom", 
+                height = 0.2,
+                relative = "win"
+              }
+            })
+          end
+        end)
+      end)
+    end, desc = "Git Push" },
+    { "<leader>gf", function() 
+      -- Background git fetch with status indicator
+      local root = Snacks.git.get_root()
+      _G.git_sync_status = { state = "syncing", command = "fetch", error = "", start_time = vim.loop.hrtime() }
+      
+      vim.system({ "git", "-C", root, "fetch", "--all" }, { text = true }, function(result)
+        vim.schedule(function()
+          if result.code == 0 then
+            -- Success
+            _G.git_sync_status = { state = "success", command = "fetch", error = "" }
+            vim.notify("✓ Git fetch completed", vim.log.levels.INFO)
+            
+            -- Reset to idle after 2 seconds
+            vim.defer_fn(function()
+              _G.git_sync_status = { state = "idle", command = "", error = "" }
+            end, 2000)
+          else
+            -- Error - show terminal with output
+            _G.git_sync_status = { state = "error", command = "fetch", error = result.stderr or result.stdout or "Unknown error" }
+            vim.notify("✗ Git fetch failed - check terminal", vim.log.levels.ERROR)
+            
+            Snacks.terminal.open("git fetch --all", { 
+              cwd = root,
+              interactive = false,
+              win = { 
+                position = "bottom", 
+                height = 0.2,
+                relative = "win"
+              }
+            })
+          end
+        end)
+      end)
+    end, desc = "Git Fetch" },
 
     -- Buffers
     { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
     { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers" },
     { "<leader>ba", function() Snacks.bufdelete.all() end, desc = "Delete All Buffers" },
+    { "<leader>bl", function() Snacks.picker.buffers() end, desc = "List Buffers" },
 
     -- Notifications
     { "<leader>un", function() Snacks.notifier.show_history() end, desc = "Notification History" },
