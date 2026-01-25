@@ -50,11 +50,11 @@ return {
         header = [[
  ██╗   ██╗██████╗  █████╗ ██╗   ██╗
  ██║   ██║██╔══██╗██╔══██╗╚██╗ ██╔╝
- ██║   ██║██║  ██║███████║ ╚████╔╝ 
- ██║   ██║██║  ██║██╔══██║  ╚██╔╝  
- ╚██████╔╝██████╔╝██║  ██║   ██║   
-  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
-                                   
+ ██║   ██║██║  ██║███████║ ╚████╔╝
+ ██║   ██║██║  ██║██╔══██║  ╚██╔╝
+ ╚██████╔╝██████╔╝██║  ██║   ██║
+  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
+
  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
@@ -65,7 +65,7 @@ return {
       sections = {
         { section = "header" },
         { section = "keys", gap = 1, padding = 1 },
-        { 
+        {
           pane = 2,
           section = "recent_files",
           title = "Recent Files",
@@ -118,13 +118,13 @@ return {
         bo = {},
         style = "explorer",
       },
-        list = {
-          keys = {
-            -- Open file but keep explorer open (use 'o' or Enter)
-            ["<CR>"] = { "edit", close = false },
-            ["o"] = { "edit", close = false },
-            -- Use 'O' to open and close explorer
-            ["O"] = { "edit", close = true },
+      list = {
+        keys = {
+          -- Open file but keep explorer open (use 'o' or Enter)
+          ["<CR>"] = { "edit", close = false },
+          ["o"] = { "edit", close = false },
+          -- Use 'O' to open and close explorer
+          ["O"] = { "edit", close = true },
         },
       },
     },
@@ -347,8 +347,8 @@ return {
     { "<leader>;", function() Snacks.dashboard() end, desc = "Dashboard" },
 
     -- Explorer (toggle) - always opens at initial path passed to nvim
-    { "<leader>e", function() 
-      Snacks.explorer({ cwd = vim.g.project_root }) 
+    { "<leader>e", function()
+      Snacks.explorer({ cwd = vim.g.project_root })
     end, desc = "Toggle Explorer" },
 
     -- Picker (Fuzzy Finder)
@@ -416,7 +416,7 @@ return {
               table.insert(branches, branch)
             end
           end
-          
+
           vim.ui.select(branches, { prompt = "Switch to branch (all):" }, function(choice)
             if choice then
               -- Handle remote branches: remotes/origin/feature -> feature
@@ -437,11 +437,11 @@ return {
         end)
       end)
     end, desc = "Git Branches (All)" },
-    { "<leader>gp", function() 
+    { "<leader>gp", function()
       -- Background git pull with status indicator
       local root = Snacks.git.get_root()
       _G.git_sync_status = { state = "syncing", command = "pull", error = "", start_time = vim.loop.hrtime() }
-      
+
       vim.system({ "git", "-C", root, "pull" }, { text = true }, function(result)
         vim.schedule(function()
           if result.code == 0 then
@@ -449,7 +449,7 @@ return {
             _G.git_sync_status = { state = "success", command = "pull", error = "" }
             vim.notify("✓ Git pull completed", vim.log.levels.INFO)
             vim.cmd("checktime")  -- Reload changed files
-            
+
             -- Reset to idle after 2 seconds
             vim.defer_fn(function()
               _G.git_sync_status = { state = "idle", command = "", error = "" }
@@ -458,12 +458,12 @@ return {
             -- Error - show terminal with output
             _G.git_sync_status = { state = "error", command = "pull", error = result.stderr or result.stdout or "Unknown error" }
             vim.notify("✗ Git pull failed - check terminal", vim.log.levels.ERROR)
-            
-            Snacks.terminal.open("git pull", { 
+
+            Snacks.terminal.open("git pull", {
               cwd = root,
               interactive = false,
-              win = { 
-                position = "bottom", 
+              win = {
+                position = "bottom",
                 height = 0.2,
                 relative = "win"
               }
@@ -472,18 +472,18 @@ return {
         end)
       end)
     end, desc = "Git Pull" },
-    { "<leader>gP", function() 
+    { "<leader>gP", function()
       -- Background git push with status indicator
       local root = Snacks.git.get_root()
       _G.git_sync_status = { state = "syncing", command = "push", error = "", start_time = vim.loop.hrtime() }
-      
+
       vim.system({ "git", "-C", root, "push" }, { text = true }, function(result)
         vim.schedule(function()
           if result.code == 0 then
             -- Success
             _G.git_sync_status = { state = "success", command = "push", error = "" }
             vim.notify("✓ Git push completed", vim.log.levels.INFO)
-            
+
             -- Reset to idle after 2 seconds
             vim.defer_fn(function()
               _G.git_sync_status = { state = "idle", command = "", error = "" }
@@ -492,12 +492,12 @@ return {
             -- Error - show terminal with output
             _G.git_sync_status = { state = "error", command = "push", error = result.stderr or result.stdout or "Unknown error" }
             vim.notify("✗ Git push failed - check terminal", vim.log.levels.ERROR)
-            
-            Snacks.terminal.open("git push", { 
+
+            Snacks.terminal.open("git push", {
               cwd = root,
               interactive = false,
-              win = { 
-                position = "bottom", 
+              win = {
+                position = "bottom",
                 height = 0.2,
                 relative = "win"
               }
@@ -506,18 +506,18 @@ return {
         end)
       end)
     end, desc = "Git Push" },
-    { "<leader>gf", function() 
+    { "<leader>gf", function()
       -- Background git fetch with status indicator
       local root = Snacks.git.get_root()
       _G.git_sync_status = { state = "syncing", command = "fetch", error = "", start_time = vim.loop.hrtime() }
-      
+
       vim.system({ "git", "-C", root, "fetch", "--all" }, { text = true }, function(result)
         vim.schedule(function()
           if result.code == 0 then
             -- Success
             _G.git_sync_status = { state = "success", command = "fetch", error = "" }
             vim.notify("✓ Git fetch completed", vim.log.levels.INFO)
-            
+
             -- Reset to idle after 2 seconds
             vim.defer_fn(function()
               _G.git_sync_status = { state = "idle", command = "", error = "" }
@@ -526,12 +526,12 @@ return {
             -- Error - show terminal with output
             _G.git_sync_status = { state = "error", command = "fetch", error = result.stderr or result.stdout or "Unknown error" }
             vim.notify("✗ Git fetch failed - check terminal", vim.log.levels.ERROR)
-            
-            Snacks.terminal.open("git fetch --all", { 
+
+            Snacks.terminal.open("git fetch --all", {
               cwd = root,
               interactive = false,
-              win = { 
-                position = "bottom", 
+              win = {
+                position = "bottom",
                 height = 0.2,
                 relative = "win"
               }
