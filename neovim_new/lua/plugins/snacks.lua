@@ -71,7 +71,7 @@ return {
           title = "Recent Files",
           indent = 2,
           padding = 1,
-          limit = 8,
+          limit = 10,
         },
         {
           pane = 2,
@@ -79,7 +79,7 @@ return {
           title = "Recent Projects",
           indent = 2,
           padding = 1,
-          limit = 5,
+          limit = 10,
           focus = true,  -- Set cursor here on open
         },
         { section = "startup" },
@@ -118,13 +118,13 @@ return {
         bo = {},
         style = "explorer",
       },
-      list = {
-        keys = {
-          -- Open file but keep explorer open (use 'o' or Enter)
-          ["<CR>"] = { "edit", close = false },
-          ["o"] = { "edit", close = false },
-          -- Use 'O' to open and close explorer
-          ["O"] = { "edit", close = true },
+        list = {
+          keys = {
+            -- Open file but keep explorer open (use 'o' or Enter)
+            ["<CR>"] = { "edit", close = false },
+            ["o"] = { "edit", close = false },
+            -- Use 'O' to open and close explorer
+            ["O"] = { "edit", close = true },
         },
       },
     },
@@ -546,6 +546,7 @@ return {
     { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers" },
     { "<leader>ba", function() Snacks.bufdelete.all() end, desc = "Delete All Buffers" },
     { "<leader>bl", function() Snacks.picker.buffers() end, desc = "List Buffers" },
+    { "<A-b>", function() Snacks.picker.buffers() end, desc = "List Buffers" },
 
     -- Notifications
     { "<leader>un", function() Snacks.notifier.show_history() end, desc = "Notification History" },

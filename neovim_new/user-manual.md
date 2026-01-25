@@ -122,10 +122,11 @@ Working with multiple open files (buffers) in Neovim.
 | `<Space>bd` | Delete buffer |
 | `<Space>bo` | Delete other buffers |
 | `<Space>ba` | Delete all buffers |
-| `<Space>bl` | **List buffers** (recommended) |
+| `<Space>bl` | List buffers (may have slight delay) |
+| `Alt + b` | **List buffers** (instant, recommended) |
 | `<Space>fb` | Find buffers (alternative) |
 
-**Tip:** Use `<Space>bl` (Buffer List) to quickly jump to any open file by typing part of its name.
+**Tip:** Use `Alt+b` for instant buffer list, or `<Space>bl` if you prefer the Space prefix (has 300ms timeout).
 
 **Note:** Maximum 20 buffers open at once (auto-closes oldest). Change in `lua/config/autocmds.lua`.
 
