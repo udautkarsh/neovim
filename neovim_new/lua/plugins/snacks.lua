@@ -65,6 +65,23 @@ return {
       sections = {
         { section = "header" },
         { section = "keys", gap = 1, padding = 1 },
+        { 
+          pane = 2,
+          section = "recent_files",
+          title = "Recent Files",
+          indent = 2,
+          padding = 1,
+          limit = 8,
+        },
+        {
+          pane = 2,
+          section = "projects",
+          title = "Recent Projects",
+          indent = 2,
+          padding = 1,
+          limit = 5,
+          focus = true,  -- Set cursor here on open
+        },
         { section = "startup" },
       },
     },

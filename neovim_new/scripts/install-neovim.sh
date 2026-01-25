@@ -47,7 +47,7 @@ fi
 print_info "Installing dependencies..."
 
 sudo apt update
-sudo apt install -y curl tar gzip ripgrep fd-find git python3-venv python3-pip
+sudo apt install -y curl tar gzip ripgrep fd-find git python3-venv python3-pip build-essential
 
 print_status "Dependencies installed!"
 
@@ -145,7 +145,7 @@ fi
 echo ""
 
 # Hardcoded config path (most reliable)
-CONFIG_DIR="$HOME/myworks/mylearnings/neovim/neovim"
+CONFIG_DIR="$HOME/myworks/mylearnings/neovim/neovim_new"
 
 # Verify config exists
 if [ ! -f "$CONFIG_DIR/init.lua" ]; then
