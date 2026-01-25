@@ -175,15 +175,15 @@ install_neovim() {
         
         # Detect package manager
         if ssh "$REMOTE" "command -v dnf &> /dev/null"; then
-            print_info "Installing gcc, gcc-c++, and make via dnf..."
+            print_info "Installing gcc, gcc-c++, make, and ripgrep via dnf..."
             print_info "You may be prompted for sudo password..."
             echo ""
-            if ssh -t "$REMOTE" "sudo dnf install -y gcc gcc-c++ make"; then
-                print_status "C compiler installed successfully!"
+            if ssh -t "$REMOTE" "sudo dnf install -y gcc gcc-c++ make ripgrep"; then
+                print_status "C compiler and ripgrep installed successfully!"
             else
                 print_error "Failed to install gcc"
-                print_info "Please install manually: ssh $REMOTE 'sudo dnf install gcc gcc-c++ make'"
-                read -p "Continue anyway? Treesitter parsers will fail. [y/N] " -n 1 -r
+                print_info "Please install manually: ssh $REMOTE 'sudo dnf install gcc gcc-c++ make ripgrep'"
+                read -p "Continue anyway? Treesitter parsers and grep will fail. [y/N] " -n 1 -r
                 echo ""
                 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
                     print_info "Installation cancelled."
@@ -191,15 +191,15 @@ install_neovim() {
                 fi
             fi
         elif ssh "$REMOTE" "command -v apt-get &> /dev/null"; then
-            print_info "Installing build-essential via apt..."
+            print_info "Installing build-essential and ripgrep via apt..."
             print_info "You may be prompted for sudo password..."
             echo ""
-            if ssh -t "$REMOTE" "sudo apt-get update -qq && sudo apt-get install -y build-essential"; then
-                print_status "C compiler installed successfully!"
+            if ssh -t "$REMOTE" "sudo apt-get update -qq && sudo apt-get install -y build-essential ripgrep"; then
+                print_status "C compiler and ripgrep installed successfully!"
             else
                 print_error "Failed to install build-essential"
-                print_info "Please install manually: ssh $REMOTE 'sudo apt install build-essential'"
-                read -p "Continue anyway? Treesitter parsers will fail. [y/N] " -n 1 -r
+                print_info "Please install manually: ssh $REMOTE 'sudo apt install build-essential ripgrep'"
+                read -p "Continue anyway? Treesitter parsers and grep will fail. [y/N] " -n 1 -r
                 echo ""
                 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
                     print_info "Installation cancelled."
@@ -362,5 +362,5 @@ print_warning "Manual installation commands (if auto-install fails):"
 echo ""
 echo "  Rocky Linux 9:"
 echo "    sudo dnf module enable nodejs:20 -y"
-echo "    sudo dnf install nodejs gcc gcc-c++ make -y"
+echo "    sudo dnf install nodejs gcc gcc-c++ make  ripgrep -y"
 echo ""
