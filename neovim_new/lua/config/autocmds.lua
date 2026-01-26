@@ -2,23 +2,63 @@ local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
 -- ============================================
--- PROJECT ROOT (capture initial path passed to nvim)
+-- PROJECT ROOT (dynamic detection)
 -- ============================================
--- Store the initial directory passed to nvim or cwd
+-- Find project root by looking for common root markers
+local function find_project_root(path)
+  local root_markers = { ".git", ".gitignore", "Makefile", "package.json", "pyproject.toml", "Cargo.toml", "go.mod" }
+  local current = path or vim.fn.expand("%:p:h")
+  
+  -- Walk up the directory tree
+  while current and current ~= "/" do
+    for _, marker in ipairs(root_markers) do
+      if vim.fn.isdirectory(current .. "/" .. marker) == 1 or vim.fn.filereadable(current .. "/" .. marker) == 1 then
+        return current
+      end
+    end
+    current = vim.fn.fnamemodify(current, ":h")
+  end
+  
+  return nil
+end
+
+-- Initialize project root from startup args or cwd
 vim.g.project_root = (function()
   local args = vim.fn.argv()
   if #args > 0 then
     local arg = args[1]
-    -- If arg is a directory, use it
+    local start_path
     if vim.fn.isdirectory(arg) == 1 then
-      return vim.fn.fnamemodify(arg, ":p")
+      start_path = vim.fn.fnamemodify(arg, ":p")
+    else
+      start_path = vim.fn.fnamemodify(arg, ":p:h")
     end
-    -- If arg is a file, use its parent directory
-    return vim.fn.fnamemodify(arg, ":p:h")
+    return find_project_root(start_path) or start_path
   end
-  -- Fallback to current working directory
-  return vim.fn.getcwd()
+  return find_project_root(vim.fn.getcwd()) or vim.fn.getcwd()
 end)()
+
+-- Update project root when opening files from a different project
+local project_root_group = vim.api.nvim_create_augroup("ProjectRoot", { clear = true })
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = project_root_group,
+  callback = function()
+    local bufname = vim.api.nvim_buf_get_name(0)
+    if bufname == "" or vim.bo.buftype ~= "" then
+      return
+    end
+    
+    local file_dir = vim.fn.fnamemodify(bufname, ":p:h")
+    local new_root = find_project_root(file_dir)
+    
+    if new_root and new_root ~= vim.g.project_root then
+      vim.g.project_root = new_root
+      -- Also update cwd to match
+      vim.cmd("cd " .. vim.fn.fnameescape(new_root))
+    end
+  end,
+  desc = "Update project root when switching projects",
+})
 
 -- ============================================
 -- GENERAL AUTOCOMMANDS

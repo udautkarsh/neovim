@@ -84,6 +84,21 @@ return {
         autocmd ColorScheme * hi NormalFloat guifg=#F9E7C0 guibg=#1F1F1F
         autocmd ColorScheme * hi FloatBorder guifg=#F9E7C0 guibg=#1F1F1F
       ]])
+
+      -- Explorer colors
+      -- Directories: Dodger blue
+      vim.api.nvim_set_hl(0, "Directory", { fg = "#1E90FF", bold = true })
+      vim.api.nvim_set_hl(0, "SnacksExplorerDir", { fg = "#1E90FF", bold = true })
+      -- Files: TokyoNight soft green
+      vim.api.nvim_set_hl(0, "SnacksExplorerFile", { fg = "#9ECE6A" })
+      vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#9ECE6A" })
+
+      -- Functions: Medium blue
+      vim.api.nvim_set_hl(0, "Function", { fg = "#0066CC" })
+      vim.api.nvim_set_hl(0, "@function", { fg = "#0066CC" })
+      vim.api.nvim_set_hl(0, "@function.call", { fg = "#0066CC" })
+      vim.api.nvim_set_hl(0, "@method", { fg = "#0066CC" })
+      vim.api.nvim_set_hl(0, "@method.call", { fg = "#0066CC" })
     end,
   },
 }

@@ -22,6 +22,9 @@ return {
     
     -- Command line completion
     "hrsh7th/cmp-cmdline",
+    
+    -- Function signature help
+    "hrsh7th/cmp-nvim-lsp-signature-help",
   },
   config = function()
     local cmp = require("cmp")
@@ -72,6 +75,7 @@ return {
       }),
       sources = cmp.config.sources({
         { name = "nvim_lsp" }, -- LSP
+        { name = "nvim_lsp_signature_help" }, -- Function signatures
         { name = "luasnip" }, -- snippets
         { name = "buffer" }, -- text within current buffer
         { name = "path" }, -- file system paths

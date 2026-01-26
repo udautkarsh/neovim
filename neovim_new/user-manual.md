@@ -8,22 +8,47 @@ The leader key is `<Space>`. Many commands start with the leader key followed by
 
 ---
 
-## 🧭 Code Navigation
+## ❓ Which-Key (Keymap Helper)
 
-Navigate through code definitions and jump history. Hold `Alt` and press arrow keys to navigate back/forward quickly.
+Press `<Space>` and wait 300ms to see a popup of available keybindings.
+
+| Key | Action |
+|-----|--------|
+| `<Space>?` | Show buffer-local keymaps |
+| `<Space>` (wait) | Shows keymap popup automatically |
+
+**Groups shown:**
+- `<Space>f` → Find/Files
+- `<Space>g` → Git
+- `<Space>b` → Buffers
+- `<Space>l` → LSP
+- `<Space>c` → Code
+- `<Space>u` → UI/Toggle
+- `<Space>x` → Diagnostics
+
+---
+
+## 🧭 Code Navigation (Lspsaga)
+
+Navigate through code definitions with enhanced LSP UI powered by Lspsaga.
 
 | Key | Action |
 |-----|--------|
 | `Alt + Enter` | Go to definition |
 | `Alt + ←` | Go back (jump list) |
 | `Alt + →` | Go forward (jump list) |
-| `<Space>ld` | Go to definition |
+| `<Space>gd` | **Peek definition** (floating window) |
+| `<Space>gD` | Go to definition |
+| `<Space>gt` | Peek type definition |
+| `<Space>gT` | Go to type definition |
+| `<Space>gf` | **LSP Finder** (refs + implementations) |
+| `K` | Hover documentation |
+| `<Space>ld` | Go to definition (legacy) |
 | `<Space>lD` | Go to declaration |
 | `<Space>lr` | Find all references |
 | `<Space>li` | Go to implementation |
 | `<Space>lt` | Go to type definition |
 | `<Space>lk` | Signature help |
-| `K` | Hover documentation |
 
 **Tip:** Hold `Alt` and press `←` multiple times to go back through your navigation history.
 
@@ -217,16 +242,24 @@ A **hunk** is a group of consecutive changed lines.
 
 ---
 
-## 🔧 LSP Actions
+## 🔧 LSP Actions (Lspsaga)
+
+Enhanced LSP UI with code actions, rename, and diagnostics.
 
 | Key | Action |
 |-----|--------|
-| `<Space>ca` | Code action (quick fixes) |
-| `<Space>cr` | Rename symbol |
+| `<Space>ca` | **Code action** (Lspsaga - shows in floating menu) |
+| `<Space>cr` | **Rename symbol** (Lspsaga) |
+| `<Space>cR` | Rename symbol (project-wide) |
 | `<Space>cf` | Format code |
-| `<Space>ci` | Toggle inlay hints |
-| `<Space>cd` | Line diagnostics |
+| `<Space>cd` | **Cursor diagnostics** (Lspsaga) |
+| `<Space>cD` | **Line diagnostics** (Lspsaga) |
+| `<Space>co` | **Code outline** (symbol tree) |
+| `<Space>ci` | Incoming calls (call hierarchy) |
+| `<Space>cO` | Outgoing calls (call hierarchy) |
 | `<Space>nd` | Generate docstring (Python/JS/TS/Lua) |
+| `[d` | Previous diagnostic (Lspsaga) |
+| `]d` | Next diagnostic (Lspsaga) |
 
 **Docstring conventions:**
 - Python: Google style
@@ -256,27 +289,39 @@ A **hunk** is a group of consecutive changed lines.
 
 ---
 
-## ↕️ Move Lines
+## ↕️ Move Lines/Blocks (mini.move)
 
 | Key | Action |
 |-----|--------|
-| `Alt + j` | Move line down |
-| `Alt + k` | Move line up |
+| `Alt + ↓` | Move line/selection down |
+| `Alt + ↑` | Move line/selection up |
+| `Alt + ←` | Move line/selection left (indent) |
+| `Alt + →` | Move line/selection right (outdent) |
+| `Alt + j` | Move line down (legacy) |
+| `Alt + k` | Move line up (legacy) |
 
-Works in normal, insert, and visual modes.
+Works in normal and visual modes. In visual mode, moves the entire selection.
 
 ---
 
-## 🔍 Diagnostics & Quickfix
+## 🔍 Diagnostics & Quickfix (Trouble)
+
+Pretty diagnostics panel with better visualization.
 
 | Key | Action |
 |-----|--------|
-| `[d` | Previous diagnostic |
-| `]d` | Next diagnostic |
+| `<Space>xx` | **Workspace diagnostics** (Trouble) |
+| `<Space>xX` | Buffer diagnostics (Trouble) |
+| `<Space>xs` | Symbols (Trouble) |
+| `<Space>xl` | LSP references (Trouble) |
+| `<Space>xL` | Location list (Trouble) |
+| `<Space>xQ` | Quickfix list (Trouble) |
+| `[d` | Previous diagnostic (Lspsaga) |
+| `]d` | Next diagnostic (Lspsaga) |
+| `[x` | Previous Trouble/Quickfix item |
+| `]x` | Next Trouble/Quickfix item |
 | `[q` | Previous quickfix |
 | `]q` | Next quickfix |
-| `<Space>xl` | Open location list |
-| `<Space>xq` | Open quickfix list |
 
 ---
 
