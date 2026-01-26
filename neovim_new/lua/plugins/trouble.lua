@@ -24,6 +24,13 @@ return {
       position = "bottom",
       size = 10,
     },
+    -- Navigation keys inside Trouble (Ctrl+h/j/k/l for window navigation)
+    keys = {
+      ["<C-k>"] = { action = function() vim.cmd("wincmd k") end, desc = "Go to code window" },
+      ["<C-j>"] = { action = function() vim.cmd("wincmd j") end, desc = "Go down" },
+      ["<C-h>"] = { action = function() vim.cmd("wincmd h") end, desc = "Go left" },
+      ["<C-l>"] = { action = function() vim.cmd("wincmd l") end, desc = "Go right" },
+    },
     preview = {
       type = "main",
       scratch = true,
@@ -56,8 +63,8 @@ return {
     },
   },
   keys = {
-    { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Workspace Diagnostics (Trouble)" },
-    { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+    { "<leader>xx", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+    { "<leader>xX", "<cmd>Trouble diagnostics toggle<cr>", desc = "Workspace Diagnostics (Trouble)" },
     { "<leader>xs", "<cmd>Trouble symbols toggle focus=false<cr>", desc = "Symbols (Trouble)" },
     { "<leader>xl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP References (Trouble)" },
     { "<leader>xL", "<cmd>Trouble loclist toggle<cr>", desc = "Location List (Trouble)" },

@@ -209,6 +209,22 @@ autocmd({ "InsertEnter", "WinLeave" }, {
 })
 
 -- ============================================
+-- TROUBLE WINDOW NAVIGATION (Ctrl+Arrows)
+-- ============================================
+autocmd("FileType", {
+  group = general,
+  pattern = "trouble",
+  callback = function()
+    local opts = { buffer = true, silent = true }
+    vim.keymap.set("n", "<C-Up>", "<cmd>wincmd k<CR>", opts)
+    vim.keymap.set("n", "<C-Down>", "<cmd>wincmd j<CR>", opts)
+    vim.keymap.set("n", "<C-Left>", "<cmd>wincmd h<CR>", opts)
+    vim.keymap.set("n", "<C-Right>", "<cmd>wincmd l<CR>", opts)
+  end,
+  desc = "Ctrl+Arrow navigation in Trouble",
+})
+
+-- ============================================
 -- CHECKTIME (auto reload files changed outside)
 -- ============================================
 autocmd({ "FocusGained", "TermClose", "TermLeave" }, {

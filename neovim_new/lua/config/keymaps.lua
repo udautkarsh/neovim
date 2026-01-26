@@ -11,6 +11,19 @@ map("v", "<A-c>", "gc", { remap = true, desc = "Comment selection" })
 -- ============================================
 -- GENERAL
 -- ============================================
+-- Alt+Enter for go to definition (global fallback)
+map("n", "<A-CR>", function()
+  if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
+    vim.lsp.buf.definition()
+  else
+    vim.notify("LSP not attached", vim.log.levels.WARN)
+  end
+end, { desc = "Go to Definition" })
+
+-- Alt+Arrow navigation (global)
+map("n", "<A-Left>", "<C-o>", { desc = "Go Back" })
+map("n", "<A-Right>", "<C-i>", { desc = "Go Forward" })
+
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
 map("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
@@ -92,16 +105,6 @@ map("n", "<leader><tab><tab>", "<cmd>tabnew<CR>", { desc = "New tab" })
 map("n", "<leader><tab>]", "<cmd>tabnext<CR>", { desc = "Next tab" })
 map("n", "<leader><tab>x", "<cmd>tabclose<CR>", { desc = "Close tab" })
 map("n", "<leader><tab>[", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
-
--- ============================================
--- MOVE LINES
--- ============================================
-map("n", "<A-j>", "<cmd>m .+1<CR>==", { desc = "Move line down" })
-map("n", "<A-k>", "<cmd>m .-2<CR>==", { desc = "Move line up" })
-map("i", "<A-j>", "<Esc><cmd>m .+1<CR>==gi", { desc = "Move line down" })
-map("i", "<A-k>", "<Esc><cmd>m .-2<CR>==gi", { desc = "Move line up" })
-map("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-map("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- ============================================
 -- INDENTING
