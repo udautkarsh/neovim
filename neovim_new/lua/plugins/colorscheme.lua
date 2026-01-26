@@ -90,8 +90,13 @@ return {
       vim.api.nvim_set_hl(0, "Directory", { fg = "#1E90FF", bold = true })
       vim.api.nvim_set_hl(0, "SnacksExplorerDir", { fg = "#1E90FF", bold = true })
       -- Files: TokyoNight soft green
-      vim.api.nvim_set_hl(0, "SnacksExplorerFile", { fg = "#9ECE6A" })
-      vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#9ECE6A" })
+      -- vim.api.nvim_set_hl(0, "SnacksExplorerFile", { fg = "#9ECE6A" })
+      -- vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#9ECE6A" })
+
+      -- vim.api.nvim_set_hl(0, "SnacksExplorerFile", { fg = "#355E3B" })
+      -- vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#355E3B" })
+      vim.api.nvim_set_hl(0, "SnacksExplorerFile", { fg = "#6B8E23" })
+      vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#6B8E23" })
 
       -- Functions: Medium blue
       vim.api.nvim_set_hl(0, "Function", { fg = "#0066CC" })

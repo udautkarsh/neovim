@@ -93,6 +93,9 @@ opt.sidescrolloff = 8
 -- ============================================
 opt.updatetime = 200
 opt.timeoutlen = 300
+-- Terminal key timeout (for Alt+Arrow keys)
+opt.ttimeout = true
+opt.ttimeoutlen = 500  -- Wait 500ms for terminal key sequences
 
 -- ============================================
 -- COMPLETION

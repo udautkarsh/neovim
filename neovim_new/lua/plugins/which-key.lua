@@ -31,7 +31,7 @@ return {
       { "<leader>g", group = "Git" },
       { "<leader>gh", group = "Git Hunks" },
       { "<leader>b", group = "Buffers" },
-      { "<leader>l", group = "LSP" },
+      { "<leader>d", group = "LSP Navigation" },
       { "<leader>c", group = "Code" },
       { "<leader>u", group = "UI/Toggle" },
       { "<leader>t", group = "Toggle/Terminal" },

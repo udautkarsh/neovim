@@ -13,6 +13,7 @@ map("v", "<A-c>", "gc", { remap = true, desc = "Comment selection" })
 -- ============================================
 -- Alt+Enter for go to definition (global fallback)
 map("n", "<A-CR>", function()
+  vim.cmd("normal! m'")
   if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
     vim.lsp.buf.definition()
   else
@@ -21,8 +22,33 @@ map("n", "<A-CR>", function()
 end, { desc = "Go to Definition" })
 
 -- Alt+Arrow navigation (global)
-map("n", "<A-Left>", "<C-o>", { desc = "Go Back" })
-map("n", "<A-Right>", "<C-i>", { desc = "Go Forward" })
+local function jump_back()
+  vim.cmd("normal! <C-o>")
+end
+
+local function jump_forward()
+  vim.cmd("normal! <C-i>")
+end
+
+map("n", "<A-Left>", jump_back, { desc = "Go Back" })
+map("n", "<A-Right>", jump_forward, { desc = "Go Forward" })
+map("n", "<A-Up>", function()
+  if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
+    local ok = pcall(vim.cmd, "Lspsaga peek_definition")
+    if not ok then
+      vim.lsp.buf.definition()
+    end
+  else
+    vim.notify("LSP not attached", vim.log.levels.WARN)
+  end
+end, { desc = "Peek Definition" })
+map("n", "<A-Down>", function()
+  if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
+    pcall(vim.cmd, "Lspsaga finder")
+  else
+    vim.notify("LSP not attached", vim.log.levels.WARN)
+  end
+end, { desc = "LSP Finder" })
 
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
