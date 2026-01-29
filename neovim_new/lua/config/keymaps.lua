@@ -32,7 +32,7 @@ end
 
 map("n", "<A-Left>", jump_back, { desc = "Go Back" })
 map("n", "<A-Right>", jump_forward, { desc = "Go Forward" })
-map("n", "<A-Up>", function()
+map("n", "<A-S-Up>", function()
   if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
     local ok = pcall(vim.cmd, "Lspsaga peek_definition")
     if not ok then
@@ -42,13 +42,13 @@ map("n", "<A-Up>", function()
     vim.notify("LSP not attached", vim.log.levels.WARN)
   end
 end, { desc = "Peek Definition" })
-map("n", "<A-Down>", function()
+map("n", "<A-S-Down>", function()
   if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
-    pcall(vim.cmd, "Lspsaga finder")
+    vim.lsp.buf.references()
   else
     vim.notify("LSP not attached", vim.log.levels.WARN)
   end
-end, { desc = "LSP Finder" })
+end, { desc = "Find References" })
 
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })

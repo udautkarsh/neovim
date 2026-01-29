@@ -35,15 +35,13 @@ M.on_attach = function(client, bufnr)
   end, "Goto Definition")             -- Alt + Enter
   map("<A-Left>", "<C-o>", "Go Back")                           -- Alt + Left Arrow
   map("<A-Right>", "<C-i>", "Go Forward")                       -- Alt + Right Arrow
-  map("<A-Up>", function()
+  map("<A-S-Up>", function()
     local ok = pcall(vim.cmd, "Lspsaga peek_definition")
     if not ok then
       safe_definition()
     end
-  end, "Peek Definition")            -- Alt + Up Arrow
-  map("<A-Down>", function()
-    pcall(vim.cmd, "Lspsaga finder")
-  end, "LSP Finder")                 -- Alt + Down Arrow
+  end, "Peek Definition")            -- Alt + Shift + Up Arrow
+  map("<A-S-Down>", vim.lsp.buf.references, "Find References") -- Alt + Shift + Down Arrow
   
   -- Space + Arrows for LSPSaga navigation
   map("<leader><CR>", function()
