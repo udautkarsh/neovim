@@ -372,7 +372,14 @@ return {
     { "<leader>gg", function() Snacks.lazygit({ cwd = Snacks.git.get_root() }) end, desc = "Lazygit" },
     { "<leader>gl", function() Snacks.picker.git_log({ cwd = Snacks.git.get_root() }) end, desc = "Git Log" },
     { "<leader>gL", function() Snacks.picker.git_log({ file = vim.fn.expand("%:p"), cwd = Snacks.git.get_root() }) end, desc = "Git Log File" },
-    { "<leader>gbl", function() Snacks.git.blame_line() end, desc = "Git Blame Line" },
+    { "<leader>gbl", function()
+      local ok, gs = pcall(require, "gitsigns")
+      if ok then
+        gs.blame_line({ full = true })
+      else
+        Snacks.git.blame_line()
+      end
+    end, desc = "Git Blame Line (with commit)" },
     { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse" },
     { "<leader>gs", function() Snacks.picker.git_status({ cwd = Snacks.git.get_root() }) end, desc = "Git Status" },
     { "<leader>gc", function() Snacks.picker.git_log({ cwd = Snacks.git.get_root() }) end, desc = "Git Commits" },
