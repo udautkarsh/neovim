@@ -71,7 +71,7 @@ return {
           title = "Recent Files",
           indent = 2,
           padding = 1,
-          limit = 10,
+          limit = 15,
         },
         {
           pane = 2,
@@ -79,7 +79,7 @@ return {
           title = "Recent Projects",
           indent = 2,
           padding = 1,
-          limit = 10,
+          limit = 15,
           focus = true,  -- Set cursor here on open
         },
         { section = "startup" },
@@ -372,7 +372,14 @@ return {
     { "<leader>gg", function() Snacks.lazygit({ cwd = Snacks.git.get_root() }) end, desc = "Lazygit" },
     { "<leader>gl", function() Snacks.picker.git_log({ cwd = Snacks.git.get_root() }) end, desc = "Git Log" },
     { "<leader>gL", function() Snacks.picker.git_log({ file = vim.fn.expand("%:p"), cwd = Snacks.git.get_root() }) end, desc = "Git Log File" },
-    { "<leader>gbl", function() Snacks.git.blame_line() end, desc = "Git Blame Line" },
+    { "<leader>gbl", function()
+      local ok, gs = pcall(require, "gitsigns")
+      if ok then
+        gs.blame_line({ full = true })
+      else
+        Snacks.git.blame_line()
+      end
+    end, desc = "Git Blame Line (with commit)" },
     { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse" },
     { "<leader>gs", function() Snacks.picker.git_status({ cwd = Snacks.git.get_root() }) end, desc = "Git Status" },
     { "<leader>gc", function() Snacks.picker.git_log({ cwd = Snacks.git.get_root() }) end, desc = "Git Commits" },
@@ -389,7 +396,9 @@ return {
                 vim.schedule(function()
                   if res.code == 0 then
                     vim.cmd("checktime")
-                    vim.cmd("edit!")
+                    if vim.api.nvim_buf_get_name(0) ~= "" then
+                      vim.cmd("edit!")
+                    end
                     vim.notify("✓ Switched to: " .. choice, vim.log.levels.INFO)
                   else
                     vim.notify("✗ Failed: " .. (res.stderr or ""), vim.log.levels.ERROR)
@@ -425,7 +434,9 @@ return {
                 vim.schedule(function()
                   if res.code == 0 then
                     vim.cmd("checktime")
-                    vim.cmd("edit!")
+                    if vim.api.nvim_buf_get_name(0) ~= "" then
+                      vim.cmd("edit!")
+                    end
                     vim.notify("✓ Switched to: " .. branch, vim.log.levels.INFO)
                   else
                     vim.notify("✗ Failed: " .. (res.stderr or ""), vim.log.levels.ERROR)

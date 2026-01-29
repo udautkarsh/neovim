@@ -20,8 +20,8 @@ return {
   opts = {
     -- Formatters by filetype
     formatters_by_ft = {
-      -- Python: ruff for formatting (with line length) + ruff_imports for isort
-			-- python = { "ruff", "ruff_imports" },
+      -- Python: ruff for formatting (with line length)
+      python = { "ruff" },
       
       -- Ansible/YAML
       yaml = { "prettier" },
@@ -54,28 +54,33 @@ return {
       ["_"] = { "trim_whitespace" },
     },
     
-		-- Format on save (disabled - use <leader>cf to format manually)
+		-- Format on save
 		format_on_save = false,
     
     -- Formatter options
     formatters = {
-			-- uncomment below section to enable ruff formatting
-			-- ruff = {
-			-- 	-- Configure ruff with line length
-			-- 	-- Line length: 88 (Black default) or 100
-			-- 	prepend_args = {
-			-- 		"format",
-			-- 		"--line-length",
-			-- 		"120", -- Set line length (change to 100 if preferred)
-			-- 	},
-			-- },
-			-- uncomment below lines to enable isort
-			-- ruff_imports = {
-			--   -- Custom formatter to sort imports (isort-compatible)
-			--   command = "ruff",
-			--   args = { "check", "--fix", "--select", "I", "--stdin-filename", "$FILENAME", "-" },
-			--   stdin = true,
-			-- },
+      ruff = {
+        -- Configure ruff with line length
+        -- Line length: 88 (Black default) or 100
+        command = "ruff",
+        args = {
+          "format",
+          "--line-length",
+          "120", -- Set line length (change to 100 if preferred)
+          "--config",
+          'format.quote-style = "double"',
+          "--stdin-filename",
+          "$FILENAME",
+          "-",
+        },
+        stdin = true,
+      },
+      -- ruff_imports = {
+      --   -- Custom formatter to sort imports (isort-compatible)
+      --   command = "ruff",
+      --   args = { "check", "--fix", "--select", "I", "--stdin-filename", "$FILENAME", "-" },
+      --   stdin = true,
+      -- },
       shfmt = {
 				prepend_args = { "-i", "2" }, -- 2 space indent
       },

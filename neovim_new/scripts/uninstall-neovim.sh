@@ -34,7 +34,22 @@ print_info "Removing Neovim binary..."
 sudo rm -rf /opt/nvim
 sudo rm -f /usr/local/bin/nvim
 
-print_status "Neovim binary removed"
+# User-level installs often symlink here (not covered by /usr/local/bin)
+if [ -e "$HOME/.local/bin/nvim" ]; then
+    print_info "Removing user Neovim at ~/.local/bin/nvim..."
+    rm -f "$HOME/.local/bin/nvim"
+    print_status "Removed ~/.local/bin/nvim"
+fi
+
+print_status "Neovim binary removed (install-neovim.sh paths)"
+
+# If another nvim is still on PATH, tell the user
+if command -v nvim &>/dev/null; then
+    print_warning "Another 'nvim' is still on your PATH:"
+    command -v nvim
+    type -a nvim 2>/dev/null || true
+    print_info "Remove that binary or adjust PATH to finish cleanup."
+fi
 
 # =============================================================================
 # Remove lazygit (if installed)

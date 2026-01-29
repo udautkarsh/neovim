@@ -7,6 +7,18 @@
 
 set -e
 
+# Default: prompt for confirmations
+AUTO_YES=false
+
+# Parse flags
+for arg in "$@"; do
+    case "$arg" in
+        -y|--yes)
+            AUTO_YES=true
+            ;;
+    esac
+done
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,6 +30,26 @@ print_status() { echo -e "${GREEN}[✓]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
 print_error() { echo -e "${RED}[✗]${NC} $1"; }
 print_info() { echo -e "${BLUE}[i]${NC} $1"; }
+
+ask_yes_no() {
+    local prompt="$1"
+    local default_yes="$2"
+    if [ "$AUTO_YES" = true ]; then
+        return 0
+    fi
+    local default_hint="[Y/n]"
+    if [ "$default_yes" = false ]; then
+        default_hint="[y/N]"
+    fi
+    read -p "$prompt $default_hint " -n 1 -r
+    echo ""
+    if [ "$default_yes" = false ]; then
+        [[ $REPLY =~ ^[Yy]$ ]]
+        return $?
+    fi
+    [[ ! $REPLY =~ ^[Nn]$ ]]
+    return $?
+}
 
 echo ""
 echo "=============================================="
@@ -32,9 +64,7 @@ echo ""
 if command -v nvim &> /dev/null; then
     CURRENT_VERSION=$(nvim --version | head -1)
     print_warning "Neovim already installed: $CURRENT_VERSION"
-    read -p "Do you want to reinstall/upgrade? [y/N] " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    if ! ask_yes_no "Do you want to reinstall/upgrade?" false; then
         print_info "Installation cancelled."
         exit 0
     fi
@@ -47,7 +77,8 @@ fi
 print_info "Installing dependencies..."
 
 sudo apt update
-sudo apt install -y curl tar gzip ripgrep fd-find git python3-venv python3-pip build-essential
+sudo apt install -y curl tar gzip ripgrep fd-find git python3-venv python3-pip build-essential \
+  luarocks lua5.1 liblua5.1-0-dev
 
 print_status "Dependencies installed!"
 
@@ -60,9 +91,7 @@ if command -v node &> /dev/null; then
     NODE_VERSION=$(node --version)
     print_status "Node.js already installed: $NODE_VERSION"
 else
-    read -p "Install Node.js LTS? (required for LSP servers) [Y/n] " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+    if ask_yes_no "Install Node.js LTS? (required for LSP servers)" true; then
         print_info "Installing Node.js LTS..."
         curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
         sudo apt-get install -y nodejs
@@ -115,10 +144,7 @@ print_status "Neovim installed!"
 # =============================================================================
 
 echo ""
-read -p "Install lazygit (for git integration)? [Y/n] " -n 1 -r
-echo ""
-
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+if ask_yes_no "Install lazygit (for git integration)?" true; then
     print_info "Installing lazygit..."
     LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
     curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
@@ -129,13 +155,17 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
 fi
 
 echo ""
-read -p "Install Python formatter (ruff)? [Y/n] " -n 1 -r
-echo ""
-
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+if ask_yes_no "Install Python formatter (ruff)?" true; then
     print_info "Installing ruff..."
     pip3 install --user ruff
     print_status "ruff installed!"
+fi
+
+echo ""
+if ask_yes_no "Install Python REPL extras (ipython, jupyter, jupytext, ipykernel)?" true; then
+    print_info "Installing ipython, jupyter, jupytext, ipykernel, pynvim, nbformat..."
+    pip3 install --user ipython jupyter jupytext ipykernel pynvim nbformat
+    print_status "Python REPL extras installed!"
 fi
 
 # =============================================================================
@@ -170,9 +200,7 @@ copy_config() {
     print_status "Config copied to ~/.config/nvim"
 }
 
-read -p "Setup Neovim config? (will remove old config/plugins) [Y/n] " -n 1 -r
-echo ""
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+if ask_yes_no "Setup Neovim config? (will remove old config/plugins)" true; then
     copy_config
 fi
 
@@ -181,10 +209,7 @@ fi
 # =============================================================================
 
 echo ""
-read -p "Install Neovim plugins now? (recommended) [Y/n] " -n 1 -r
-echo ""
-
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+if ask_yes_no "Install Neovim plugins now? (recommended)" true; then
     print_info "Installing plugins (this may take a minute)..."
     nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
     print_status "Plugins installed!"

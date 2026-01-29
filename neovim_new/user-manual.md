@@ -400,6 +400,14 @@ Pretty diagnostics panel with better visualization.
 
 ---
 
+## 🧩 Bracket / Pair Navigation
+
+| Key | Action |
+|-----|--------|
+| `%` | Jump to matching bracket/brace/paren |
+
+---
+
 ## 🧱 Block / Indent Navigation
 
 Navigate through code blocks using indent levels.

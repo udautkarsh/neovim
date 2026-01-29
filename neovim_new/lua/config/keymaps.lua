@@ -54,13 +54,100 @@ map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
 map("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 map("n", "<leader>Q", "<cmd>qa!<CR>", { desc = "Quit all" })
+map("n", "<leader>F", function()
+  require("conform").format({ async = true, lsp_fallback = true })
+end, { desc = "Format buffer (manual)" })
+map("n", "<leader>jc", "<cmd>terminal jupyter console --kernel python<CR>", { desc = "Jupyter Console" })
+map("n", "<leader>jl", "<cmd>terminal jupyter lab<CR>", { desc = "Jupyter Lab" })
+map("n", "<leader>jp", function()
+  local file = vim.fn.expand("%:p")
+  if file == "" then
+    vim.notify("No file to convert", vim.log.levels.WARN)
+    return
+  end
+  if not file:match("%.ipynb$") then
+    vim.notify("Not an .ipynb file", vim.log.levels.WARN)
+    return
+  end
+  if vim.fn.executable("jupytext") ~= 1 then
+    vim.notify("jupytext not found in PATH", vim.log.levels.ERROR)
+    return
+  end
+  local cmd = {
+    "jupytext",
+    "--to",
+    "py:percent",
+    file,
+  }
+  local output = vim.fn.system(cmd)
+  if vim.v.shell_error ~= 0 then
+    vim.notify("jupytext failed: " .. output, vim.log.levels.ERROR)
+    return
+  end
+  local py_file = file:gsub("%.ipynb$", ".py")
+  vim.cmd("edit " .. vim.fn.fnameescape(py_file))
+end, { desc = "Convert .ipynb to .py (percent)" })
 
 -- Better escape
 map("i", "jk", "<Esc>", { desc = "Exit insert mode" })
 map("i", "jj", "<Esc>", { desc = "Exit insert mode" })
 
--- Select all
-map("n", "<C-a>", "gg<S-v>G", { desc = "Select all" })
+-- Floating terminal window (toggle with Ctrl+a)
+local float_term = { win = nil, buf = nil }
+
+local function close_float_terminal()
+  if float_term.win and vim.api.nvim_win_is_valid(float_term.win) then
+    pcall(vim.api.nvim_win_close, float_term.win, true)
+  end
+  float_term.win = nil
+end
+
+local function open_float_terminal()
+  local buf = float_term.buf
+  if not buf or not vim.api.nvim_buf_is_valid(buf) then
+    buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[buf].bufhidden = "hide"
+    vim.bo[buf].filetype = "terminal"
+    float_term.buf = buf
+  end
+
+  local width = math.floor(vim.o.columns * 0.8)
+  local height = math.floor(vim.o.lines * 0.6)
+  local row = math.floor((vim.o.lines - height) / 2)
+  local col = math.floor((vim.o.columns - width) / 2)
+
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = "minimal",
+    border = "rounded",
+  })
+
+  float_term.win = win
+
+  if vim.bo[buf].buftype ~= "terminal" then
+    vim.fn.termopen(vim.o.shell)
+  end
+  vim.cmd("startinsert")
+
+  vim.keymap.set("t", "<Esc><Esc>", close_float_terminal, { buffer = buf, nowait = true })
+  vim.keymap.set("t", "<C-a>", close_float_terminal, { buffer = buf, nowait = true })
+  vim.keymap.set("n", "q", close_float_terminal, { buffer = buf, nowait = true })
+  vim.keymap.set("n", "<Esc>", close_float_terminal, { buffer = buf, nowait = true })
+end
+
+local function toggle_float_terminal()
+  if float_term.win and vim.api.nvim_win_is_valid(float_term.win) then
+    close_float_terminal()
+    return
+  end
+  open_float_terminal()
+end
+
+map("n", "<C-a>", toggle_float_terminal, { desc = "Toggle floating terminal" })
 
 -- ============================================
 -- NAVIGATION
@@ -242,7 +329,3 @@ map("n", "<A-S-l>", function()
   end
 end, { desc = "Cycle Line Number Modes" })
 
--- ============================================
--- LAZY
--- ============================================
-map("n", "<leader>l", "<cmd>Lazy<CR>", { desc = "Lazy" })

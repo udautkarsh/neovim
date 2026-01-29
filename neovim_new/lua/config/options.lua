@@ -51,6 +51,7 @@ opt.showmode = false
 opt.pumheight = 10
 opt.pumblend = 10
 opt.winblend = 10
+opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon500-blinkoff500-blinkwait500"
 
 -- ============================================
 -- BEHAVIOR
