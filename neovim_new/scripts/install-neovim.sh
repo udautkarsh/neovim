@@ -157,14 +157,14 @@ fi
 echo ""
 if ask_yes_no "Install Python formatter (ruff)?" true; then
     print_info "Installing ruff..."
-    pip3 install --user ruff
+    pip3 install --user ruff --break-system-packages
     print_status "ruff installed!"
 fi
 
 echo ""
 if ask_yes_no "Install Python REPL extras (ipython, jupyter, jupytext, ipykernel)?" true; then
     print_info "Installing ipython, jupyter, jupytext, ipykernel, pynvim, nbformat..."
-    pip3 install --user ipython jupyter jupytext ipykernel pynvim nbformat
+    pip3 install --user ipython jupyter jupytext ipykernel pynvim nbformat --break-system-packages
     print_status "Python REPL extras installed!"
 fi
 
