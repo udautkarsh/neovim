@@ -15,6 +15,7 @@ return {
         "shfmt",          -- Shell formatter
         "stylua",         -- Lua formatter
         "ruff",           -- Python formatter/linter
+        "debugpy",        -- Python DAP adapter
         "ansible-lint",   -- Ansible linter
         -- "ltex-ls",     -- Requires Java, install manually: :MasonInstall ltex-ls
       },
