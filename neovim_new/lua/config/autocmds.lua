@@ -238,6 +238,26 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 })
 
 -- ============================================
+-- PYTHON VENV DEBUG COMMAND
+-- ============================================
+-- :PyVenvShow  -- prints which interpreter pyright will use for current project
+vim.api.nvim_create_user_command("PyVenvShow", function()
+  local ok, utils = pcall(require, "utils")
+  if not ok then
+    vim.notify("utils module not found", vim.log.levels.ERROR)
+    return
+  end
+  local root = vim.g.project_root or vim.uv.cwd()
+  local python = utils.get_python_path(root)
+  local venv = os.getenv("VIRTUAL_ENV") or ""
+  vim.notify(table.concat({
+    "Project root: " .. tostring(root),
+    "Python:       " .. tostring(python),
+    "VIRTUAL_ENV:  " .. (venv ~= "" and venv or "<not set>"),
+  }, "\n"), vim.log.levels.INFO, { title = "Python venv" })
+end, { desc = "Show resolved python interpreter for current project" })
+
+-- ============================================
 -- MAX BUFFER LIMIT
 -- ============================================
 local max_buffers = augroup("MaxBuffers", { clear = true })

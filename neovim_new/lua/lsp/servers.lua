@@ -23,7 +23,28 @@ return {
   bashls = {},
 
   -- Python
+  -- Dynamic venv: `before_init` runs per-workspace, so pyright always uses
+  -- the venv interpreter found under the current project root.
   pyright = {
+    before_init = function(_, config)
+      local utils = require("utils")
+      local root = config.root_dir or vim.uv.cwd()
+      local python_path = utils.get_python_path(root)
+
+      config.settings = config.settings or {}
+      config.settings.python = vim.tbl_deep_extend(
+        "force",
+        config.settings.python or {},
+        { pythonPath = python_path }
+      )
+
+      -- Also expose venvPath/venv (pyright honors these for import resolution)
+      local venv_env = os.getenv("VIRTUAL_ENV")
+      if venv_env and venv_env ~= "" then
+        config.settings.python.venvPath = vim.fs.dirname(venv_env)
+        config.settings.python.venv = vim.fs.basename(venv_env)
+      end
+    end,
     settings = {
       python = {
         analysis = {

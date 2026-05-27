@@ -569,6 +569,88 @@ The file `lazy-lock.json` stores exact plugin versions. Commit this file to ensu
 
 ---
 
+## 🧩 Added IDE Plugins (VSCode-like)
+
+The following plugins were added to make the editing experience closer to VS Code:
+
+- `lua/plugins/dap.lua` - Debug adapter (breakpoints, stepping, debug UI)
+- `lua/plugins/aerial.lua` - Symbol outline panel
+- `lua/plugins/bufferline.lua` - Top buffer tabs
+- `lua/plugins/spectre.lua` - Project search and replace UI
+- `lua/plugins/colorizer.lua` - Inline color previews
+- `lua/plugins/todo-comments.lua` - TODO/FIXME highlights and jumps
+- `lua/plugins/flash.lua` - Fast in-buffer navigation
+- `lua/plugins/ufo.lua` - Better code folding
+- `lua/plugins/markdown-preview.lua` - Markdown browser preview
+- `lua/plugins/treesj.lua` - Toggle split/join code blocks
+- `lua/plugins/harpoon.lua` - Quick file bookmarks
+- `lua/plugins/venv-selector.lua` - Manual Python venv switcher (Snacks picker)
+
+### Added Plugin Keymaps
+
+| Key | Action |
+|-----|--------|
+| `<leader>Dc` | Debug: continue / start (pdb `c`) |
+| `<leader>Dn` | Debug: step over / next (pdb `n`) |
+| `<leader>Ds` | Debug: step into (pdb `s`) |
+| `<leader>Dr` | Debug: step out / return (pdb `r`) |
+| `<leader>Db` | Debug: toggle breakpoint (pdb `b`) |
+| `<leader>DB` | Debug: conditional breakpoint |
+| `<leader>Dq` | Debug: terminate (pdb `q`) |
+| `<leader>Dp` | Debug: print / evaluate expression (pdb `p`) |
+| `<leader>DC` | Debug: run to cursor |
+| `<leader>Dl` / `<leader>DL` | Debug: run last / pick launch config |
+| `<leader>DF` | Debug: select Python file |
+| `<leader>Du` / `<leader>DR` | Debug: toggle UI / REPL |
+| `<leader>Dt` / `<leader>DT` | Debug: nearest test method / class (Python) |
+| `<leader>o` | Toggle symbol outline |
+| `<leader>sr` | Toggle project search/replace |
+| `<leader>sw` | Search current word in project |
+| `<leader>sp` | Search in current file |
+| `]t` / `[t` | Next / previous TODO |
+| `<leader>xt` | Send TODOs to quickfix |
+| `<leader>xT` | Send TODOs to location list |
+| `s` / `S` | Flash jump / Treesitter jump |
+| `zR` / `zM` | Open all / close all folds |
+| `<leader>mp` | Toggle markdown browser preview |
+| `<leader>j` | Toggle split/join code block |
+| `<leader>ha` | Harpoon add file |
+| `<leader>hh` | Harpoon quick menu |
+| `<C-1>` `<C-2>` `<C-3>` `<C-4>` | Jump to Harpoon marks 1-4 |
+| `<leader>vs` | Pick Python venv (override auto-detect) |
+| `<leader>vc` | Use last cached venv for this cwd |
+| `:PyVenvShow` | Print which Python interpreter pyright will use |
+
+---
+
+## 🐍 Python venv auto-detection
+
+`pyright` previously failed to resolve imports like `ollama` because it
+did not know which Python interpreter to use. The config now resolves the
+interpreter **per project** every time the LSP starts.
+
+Detection order (see `lua/utils/init.lua → get_python_path`):
+
+1. `vim.g.python3_host_prog` — explicit user override
+2. `$VIRTUAL_ENV` — if you launched `nvim` with a venv already activated
+3. `.venv` / `venv` / `env` / `.virtualenv` walked **upward** from the project root
+4. `poetry env info -p` — if a `pyproject.toml` and `poetry` are present
+5. `pipenv --venv` — if a `Pipfile` is present
+6. System `python3` as a last resort
+
+Because step 3 walks upward, a venv at the **repo root** is picked up even
+when you open a file from a deep subdirectory. Each project keeps its own
+venv — switching repos automatically switches interpreters.
+
+If detection picks the wrong venv (e.g., multiple venvs in the same repo,
+conda env, pyenv-virtualenv), run `:VenvSelect` (`<leader>vs`) and choose
+the right one — pyright restarts automatically.
+
+To verify which interpreter is in use for the current buffer, run
+`:PyVenvShow`.
+
+---
+
 ## ⌨️ Key Bindings
 
 For a complete list of all keybindings, see the **[User Manual](user-manual.md)**.

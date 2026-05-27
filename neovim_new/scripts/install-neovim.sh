@@ -211,6 +211,29 @@ if ask_yes_no "Install Python REPL extras (ipython, jupyter, jupytext, ipykernel
 fi
 
 # =============================================================================
+# STEP 6c: Install debugpy (Python debugger backend for nvim-dap-python)
+#
+# At runtime, the Neovim config tries to install debugpy directly into the
+# active project venv (via `uv pip install` or `python -m pip install`).
+# Here we make sure a system-level fallback exists so debugging also works
+# in plain Python files that have no venv:
+#   - prefer Debian/Ubuntu package `python3-debugpy` (no PEP 668 issues)
+#   - otherwise install with pip --user --break-system-packages
+# =============================================================================
+
+echo ""
+if ask_yes_no "Install debugpy (Python debug adapter) at system level as a fallback?" true; then
+    if apt-cache show python3-debugpy >/dev/null 2>&1; then
+        print_info "Installing python3-debugpy via apt..."
+        sudo apt install -y python3-debugpy
+    else
+        print_info "Installing debugpy via pip (--user, --break-system-packages)..."
+        pip3 install --user debugpy --break-system-packages
+    fi
+    print_status "debugpy installed system-wide!"
+fi
+
+# =============================================================================
 # STEP 7: Setup config directory (copy)
 # =============================================================================
 

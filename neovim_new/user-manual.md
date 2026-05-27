@@ -21,10 +21,15 @@ Press `<Space>` and wait 300ms to see a popup of available keybindings.
 - `<Space>f` → Find/Files
 - `<Space>g` → Git
 - `<Space>b` → Buffers
-- `<Space>l` → LSP
+- `<Space>d` → LSP Navigation (buffer-local; only in LSP buffers)
+- `<Space>D` → **Debug** (capital **D** = Shift+D after Space)
 - `<Space>c` → Code
 - `<Space>u` → UI/Toggle
 - `<Space>x` → Diagnostics
+
+> **Debug not in the menu?** After `<Space>`, press **Shift+D** (capital D).
+> which-key lists it as `D` / 🐞 Debug — not under lowercase `d` (that is LSP).
+> Or press `<Space>D` then pause to see `c` `n` `s` `b` …
 
 ---
 
@@ -322,6 +327,314 @@ Pretty diagnostics panel with better visualization.
 | `]x` | Next Trouble/Quickfix item |
 | `[q` | Previous quickfix |
 | `]q` | Next quickfix |
+
+---
+
+## 🐞 Debugging Python (DAP)
+
+Debugging is powered by **nvim-dap** + **nvim-dap-python** (which uses
+`debugpy`). All keys live under `<Space>D` (capital **D** = *Debug*) and
+mirror the single-letter commands you already know from `pdb`.
+
+### Keymaps (pdb-style)
+
+| Key | Action | pdb |
+|-----|--------|-----|
+| `<Space>Dc` | **Continue** / start a debug session | `c` |
+| `<Space>Dn` | Step over (**next** line) | `n` |
+| `<Space>Ds` | **Step** into function | `s` |
+| `<Space>Dr` | Step out (**return** from function) | `r` |
+| `<Space>Db` | Toggle **breakpoint** on current line | `b` |
+| `<Space>DB` | Conditional breakpoint (prompts for expression) | `b … , cond` |
+| `<Space>Dq` | **Quit** / terminate session | `q` |
+| `<Space>Dp` | **Print** / evaluate expression under cursor (hover) | `p` |
+| `<Space>DC` | Run to **C**ursor | `until` |
+| `<Space>Dl` | Run **last** debug configuration | — |
+| `<Space>DL` | Pick a **L**aunch configuration | — |
+| `<Space>DF` | Select a Python **F**ile to debug | — |
+| `<Space>Du` | Toggle the DAP **UI** (variables / stack / scopes) | — |
+| `<Space>DR` | Toggle the DAP **R**EPL | — |
+| `<Space>Dt` | Debug nearest **t**est method (pytest / unittest) | — |
+| `<Space>DT` | Debug containing **T**est class | — |
+
+### Fast Alt shortcuts
+
+For the two things you toggle most often, no leader needed:
+
+| Key | Action |
+|-----|--------|
+| `Alt + d` | **Toggle breakpoint** on the current line |
+| `Alt + Shift + D` | **Toggle the DAP UI** (variables / stack / breakpoints panel) |
+
+> `Alt + d` then `Alt + d` (double-tap) is *not* used on purpose: it would
+> force a `timeoutlen` wait on every single `Alt + d`, which feels laggy.
+> Use `Alt + Shift + D` for the UI instead.
+
+> Tip: type `<Space>` then **Shift+D** and pause — which-key shows the
+> Debug submenu (`c` continue, `n` next, `b` breakpoint, …).
+> All debug keys must be registered in `which-key` spec; lowercase `<Space>d`
+> is reserved for LSP navigation (`dd`, `dr`, …).
+
+### Workflow at a glance
+
+1. Open the Python file.
+2. `<Space>Db` on lines you want to stop at.
+3. `<Space>Dc` to start. On the **first** run nvim-dap shows a picker
+   asking *which* configuration to use; pick one (see below).
+4. The DAP UI opens automatically — stack frame, scopes, watches and
+   breakpoints appear in side panels.
+5. Step with `<Space>Dn` / `<Space>Ds` / `<Space>Dr`, evaluate a value
+   with `<Space>Dp` (visual selection also works), terminate with
+   `<Space>Dq`.
+
+To re-run the same configuration without the picker, use
+`<Space>Dl` (*run last*). To force the picker again, use `<Space>DL`.
+
+---
+
+### 1. Debugging local code
+
+nvim-dap-python registers these launch configurations automatically:
+
+| Config (picker entry) | What it does |
+|-----------------------|--------------|
+| **Launch file** | Runs the **currently open** `.py` file under debugpy |
+| **Launch file with arguments** | Same, but prompts for CLI args (space separated) |
+| **Attach remote** | Connects to an already-running debugpy server (see §2) |
+
+#### Debug the current file
+```text
+1. Open the file, set breakpoints with <Space>Db
+2. <Space>Dc → pick "Launch file"
+3. Step with <Space>Dn / <Space>Ds, evaluate with <Space>Dp
+4. <Space>Dq to stop
+```
+
+#### Debug another Python file
+Use this when you are currently editing one file but want to launch a
+different script.
+
+```text
+1. <Space>DF
+2. Type or tab-complete the Python file path
+3. Press Enter — DAP launches that selected file
+```
+
+The selected file uses the same project venv resolver as the rest of the
+Python config (`:PyVenvShow` shows the interpreter).
+
+#### Debug with CLI arguments
+```text
+1. <Space>Dc → pick "Launch file with arguments"
+2. Type the arguments at the prompt, e.g.  --config dev.yaml --verbose
+3. Press Enter — debug session starts
+```
+
+#### Debug a pytest / unittest test
+Put the cursor anywhere inside the test function and:
+```text
+<Space>Dt   →  debug just that test function
+<Space>DT   →  debug all tests in the surrounding class
+```
+Requires `pytest` (or `unittest`) installed in the active venv.
+
+#### Run to the cursor (no breakpoint needed)
+```text
+1. Put cursor on the line you want to inspect
+2. <Space>DC
+```
+
+#### Python interpreter / venv
+debugpy runs inside the **same interpreter** Pyright uses for the
+project. Detection order (see `lua/utils/init.lua → get_python_path`):
+
+1. `vim.g.python3_host_prog` (manual override)
+2. `$VIRTUAL_ENV`
+3. `.venv` / `venv` / `env` / `.virtualenv` walked upward from the file
+4. `poetry env info -p`
+5. `pipenv --venv`
+6. system `python3`
+
+Check what is being used:
+```text
+:PyVenvShow
+```
+Switch interpreter (if multiple venvs / conda / pyenv):
+```text
+<Space>vs        " interactive picker
+<Space>vc        " use last cached venv for this cwd
+```
+
+#### debugpy is auto-installed
+
+`debugpy` runs **inside the same interpreter as the program being
+debugged**. There is no way to split adapter and program (they are the
+same process). The Neovim config now manages this for you:
+
+| Situation | What the config does |
+|-----------|----------------------|
+| Project venv detected (`pyvenv.cfg`) and debugpy missing | Auto-installs into the venv via `uv pip install --python <venv>/bin/python debugpy`, falling back to `<venv>/bin/python -m pip install debugpy`. |
+| Project venv install fails | Falls back to Mason's isolated debugpy adapter (`:MasonInstall debugpy`). |
+| No venv detected (system Python) | Does **not** install into the system. Uses Mason's debugpy adapter instead. |
+
+You’ll see notifications like:
+
+```text
+Installing debugpy into venv (uv pip install --python …/.venv/bin/python debugpy)…
+debugpy installed.
+```
+
+If the install fails, the notification stays open (no auto-dismiss) so
+you can copy the command and run it manually.
+
+The installer script (`scripts/install-neovim.sh`) also offers to
+provision a system-level fallback via either:
+
+- `apt install python3-debugpy` (preferred on Debian/Ubuntu, no
+  PEP 668 issues), or
+- `pip3 install --user --break-system-packages debugpy`.
+
+To verify which interpreter and debugpy are active right now:
+
+```text
+:PyVenvShow
+:lua print(vim.fn.system({ vim.fn.exepath("python3"), "-c", "import debugpy; print(debugpy.__version__)" }))
+```
+
+---
+
+### 2. Debugging remote code (`debugpy` attach)
+
+Useful when:
+- The process runs **inside a Docker container**.
+- The code runs on a **different machine** (SSH, VM, edge device).
+- You need to debug a long-running service (web app, worker, daemon)
+  without restarting it from Neovim.
+
+#### Step 1 — install `debugpy` on the remote
+```bash
+# in the remote's venv
+pip install debugpy
+```
+
+#### Step 2 — start the program with debugpy listening
+
+**Option A — wait for the debugger to attach before running:**
+```bash
+python -m debugpy --listen 0.0.0.0:5678 --wait-for-client myapp.py
+```
+
+**Option B — start the program, attach later:**
+```bash
+python -m debugpy --listen 0.0.0.0:5678 myapp.py
+```
+
+**Option C — inside the code (handy for services):**
+```python
+import debugpy
+debugpy.listen(("0.0.0.0", 5678))
+debugpy.wait_for_client()      # optional: block until VS Code / nvim attaches
+debugpy.breakpoint()           # optional: programmatic breakpoint
+```
+
+> `0.0.0.0` lets remote machines connect. Use `127.0.0.1` if the
+> debugpy server runs on the same host as Neovim.
+
+#### Step 3 — forward the port (if the process is remote)
+
+| Scenario | Command |
+|----------|---------|
+| SSH host | `ssh -L 5678:localhost:5678 user@remote-host` |
+| Docker (host network) | nothing — already reachable |
+| Docker (bridge) | `docker run -p 5678:5678 …` |
+| Docker Compose | add `ports: ["5678:5678"]` to the service |
+| Kubernetes pod | `kubectl port-forward pod/my-pod 5678:5678` |
+
+The goal: **`localhost:5678` on the machine running Neovim** must reach
+the debugpy listener.
+
+#### Step 4 — attach from Neovim
+
+```text
+1. Open any file from the same project in Neovim
+2. (Optional) set breakpoints with <Space>Db   — paths must match what
+   debugpy sees on the remote; see "Path mapping" below
+3. <Space>Dc  →  pick "Attach remote"
+4. Host:  127.0.0.1   (or the forwarded host)
+5. Port:  5678
+6. Debug session starts — DAP UI shows the remote stack
+```
+
+Use `<Space>Dl` to attach again with the same host/port without being
+prompted.
+
+#### Path mapping (when local & remote paths differ)
+
+If your code lives at `/app/src/...` on the remote but at
+`/home/me/project/src/...` locally, breakpoints won't bind because
+debugpy sees different paths. Two options:
+
+1. **Open the project from the matching root** so paths align (easiest
+   in Docker where you mount your repo at `/app`: just `cd` to that
+   path locally too — usually unnecessary if the structure matches).
+2. **Configure `pathMappings`** by editing
+   `lua/plugins/dap.lua` and adding a custom configuration:
+
+```lua
+local dap = require("dap")
+dap.configurations.python = dap.configurations.python or {}
+table.insert(dap.configurations.python, {
+  type = "python",
+  request = "attach",
+  name = "Attach remote (Docker)",
+  connect = { host = "127.0.0.1", port = 5678 },
+  pathMappings = {
+    { localRoot = vim.fn.getcwd(),  remoteRoot = "/app" },
+  },
+  justMyCode = false,
+})
+```
+After saving, restart Neovim and the new entry shows up in the
+configuration picker (`<Space>DL`).
+
+#### Common remote pitfalls
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `Connection refused` | debugpy not listening / wrong port | check the `--listen` flag and port-forward |
+| Session attaches but breakpoints are *unbound* (hollow circle) | Path mismatch between local and remote | add `pathMappings` (see above) |
+| Stuck at "waiting for client" | `--wait-for-client` was used | run `<Space>Dc` → Attach remote |
+| Can't step into stdlib / site-packages | `justMyCode = true` (default) | set `justMyCode = false` in a custom config |
+
+---
+
+### Useful DAP commands
+
+| Command | Purpose |
+|---------|---------|
+| `:DapShowLog` | Open the DAP log (debugging the debugger) |
+| `:DapErrors` | Open a scratch buffer with all captured errors from the current session |
+| `:DapContinue` | Same as `<Space>Dc` |
+| `:DapTerminate` | Same as `<Space>Dq` |
+| `:DapToggleBreakpoint` | Same as `<Space>Db` |
+| `:Mason` | Verify `debugpy` is installed |
+
+### Where errors go
+
+DAP can fail in two ways: the **adapter** can exit (bad interpreter,
+missing `debugpy`) or your **program** can crash. Both are now captured
+so you have time to read them:
+
+- **Adapter / program stderr** is forwarded to `vim.notify` with the
+  level `ERROR`. With Snacks notifier these stay in your history.
+  Open the history with `<Space>un`.
+- A **non-zero exit code** also raises a persistent notification
+  (`timeout = false`) — it stays until you dismiss it.
+- The DAP UI does **not** auto-close on terminate/exit anymore, so any
+  scrollback in the DAP console stays visible. Close it manually with
+  `<Space>Du` or `Alt + Shift + D`.
+- The full structured log lives at `:DapShowLog`. A condensed list of
+  captured stderr/error messages is available via `:DapErrors`.
 
 ---
 

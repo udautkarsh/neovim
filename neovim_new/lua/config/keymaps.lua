@@ -11,10 +11,15 @@ map("v", "<A-c>", "gc", { remap = true, desc = "Comment selection" })
 -- ============================================
 -- GENERAL
 -- ============================================
+-- Returns true if at least one LSP client is attached to the current buffer.
+local function lsp_attached()
+  return #vim.lsp.get_clients({ bufnr = 0 }) > 0
+end
+
 -- Alt+Enter for go to definition (global fallback)
 map("n", "<A-CR>", function()
   vim.cmd("normal! m'")
-  if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
+  if lsp_attached() then
     vim.lsp.buf.definition()
   else
     vim.notify("LSP not attached", vim.log.levels.WARN)
@@ -33,7 +38,7 @@ end
 map("n", "<A-Left>", jump_back, { desc = "Go Back" })
 map("n", "<A-Right>", jump_forward, { desc = "Go Forward" })
 map("n", "<A-S-Up>", function()
-  if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
+  if lsp_attached() then
     local ok = pcall(vim.cmd, "Lspsaga peek_definition")
     if not ok then
       vim.lsp.buf.definition()
@@ -43,7 +48,7 @@ map("n", "<A-S-Up>", function()
   end
 end, { desc = "Peek Definition" })
 map("n", "<A-S-Down>", function()
-  if vim.lsp.buf_get_clients() and #vim.lsp.buf_get_clients() > 0 then
+  if lsp_attached() then
     vim.lsp.buf.references()
   else
     vim.notify("LSP not attached", vim.log.levels.WARN)
@@ -245,8 +250,8 @@ map("n", "]l", "<cmd>lnext<CR>", { desc = "Next location" })
 -- ============================================
 -- DIAGNOSTICS
 -- ============================================
-map("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
-map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+map("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, { desc = "Prev diagnostic" })
+map("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end,  { desc = "Next diagnostic" })
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics" })
 
 -- ============================================

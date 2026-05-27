@@ -116,18 +116,19 @@ M.on_attach = function(client, bufnr)
   map("[d", function()
     local ok = pcall(vim.cmd, "Lspsaga diagnostic_jump_prev")
     if not ok then
-      vim.diagnostic.goto_prev()
+      vim.diagnostic.jump({ count = -1, float = true })
     end
   end, "Prev Diagnostic")
   map("]d", function()
     local ok = pcall(vim.cmd, "Lspsaga diagnostic_jump_next")
     if not ok then
-      vim.diagnostic.goto_next()
+      vim.diagnostic.jump({ count = 1, float = true })
     end
   end, "Next Diagnostic")
 
-  -- Inlay hints (if supported)
-  if client.supports_method("textDocument/inlayHint") then
+  -- Inlay hints (if supported). Use `:supports_method` (method call) — the
+  -- dot form `client.supports_method(...)` is deprecated in Neovim 0.11+.
+  if client:supports_method("textDocument/inlayHint", bufnr) then
     map("<leader>ci", function()
       vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }))
     end, "Toggle Inlay Hints")
