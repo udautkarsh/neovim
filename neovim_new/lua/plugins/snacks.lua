@@ -107,6 +107,9 @@ return {
 
     -- ============================================
     -- EXPLORER - File explorer (replaces nvim-tree)
+    -- Width is controlled via picker.sources.explorer.layout below
+    -- (Snacks' explorer is rendered by Snacks.picker, so the
+    --  `styles.explorer` window style is NOT what controls width.)
     -- ============================================
     explorer = {
       enabled = true,
@@ -206,7 +209,20 @@ return {
     -- ============================================
     picker = {
       enabled = true,
-      sources = {},
+      sources = {
+        -- File explorer sidebar (Snacks.explorer is a picker source).
+        -- Change `width` here to resize the explorer panel.
+        explorer = {
+          layout = {
+            preset = "sidebar",
+            preview = false,
+            layout = {
+              position = "left",
+              width = 25,  -- columns; raise for a wider explorer
+            },
+          },
+        },
+      },
       layout = {
         cycle = true,
         preset = "default",
@@ -328,13 +344,13 @@ return {
 
     -- ============================================
     -- STYLES - Custom window styles
+    -- NOTE: `styles.explorer` does NOT control the explorer width.
+    -- The explorer is a picker source, so its width is set under
+    -- `picker.sources.explorer.layout.layout.width` above.
     -- ============================================
     styles = {
       notification = {
         wo = { wrap = true },
-      },
-      explorer = {
-        width = 25,  -- Explorer width (change this to adjust width)
       },
     },
   },

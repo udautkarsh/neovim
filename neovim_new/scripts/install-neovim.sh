@@ -83,6 +83,48 @@ sudo apt install -y curl tar gzip ripgrep fd-find git python3-venv python3-pip b
 print_status "Dependencies installed!"
 
 # =============================================================================
+# STEP 2b: Install tree-sitter CLI
+# Required by nvim-treesitter's main branch (Neovim 0.12+) to compile parsers.
+# We download a prebuilt binary from GitHub releases (per the upstream docs,
+# `npm` installs are NOT supported).
+# =============================================================================
+
+echo ""
+if command -v tree-sitter &> /dev/null; then
+    TS_VERSION=$(tree-sitter --version 2>/dev/null | head -1)
+    print_status "tree-sitter CLI already installed: $TS_VERSION"
+else
+    if ask_yes_no "Install tree-sitter CLI? (required by nvim-treesitter)" true; then
+        print_info "Installing tree-sitter CLI from GitHub releases..."
+        TS_TMP=$(mktemp -d)
+        pushd "$TS_TMP" >/dev/null
+
+        # Detect architecture
+        ARCH=$(uname -m)
+        case "$ARCH" in
+            x86_64)  TS_ARCH="x64" ;;
+            aarch64|arm64) TS_ARCH="arm64" ;;
+            *) print_error "Unsupported arch: $ARCH"; popd >/dev/null; rm -rf "$TS_TMP"; exit 1 ;;
+        esac
+
+        TS_LATEST=$(curl -s "https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest" \
+            | grep -Po '"tag_name": "v\K[^"]*')
+        TS_URL="https://github.com/tree-sitter/tree-sitter/releases/download/v${TS_LATEST}/tree-sitter-linux-${TS_ARCH}.gz"
+
+        curl -fLo tree-sitter.gz "$TS_URL"
+        gunzip tree-sitter.gz
+        chmod +x tree-sitter
+        sudo install tree-sitter /usr/local/bin/tree-sitter
+
+        popd >/dev/null
+        rm -rf "$TS_TMP"
+        print_status "tree-sitter CLI installed: $(tree-sitter --version | head -1)"
+    else
+        print_warning "Skipping tree-sitter CLI. Treesitter parsers will fail to build."
+    fi
+fi
+
+# =============================================================================
 # STEP 3: Install Node.js (required for most LSP servers)
 # =============================================================================
 
@@ -213,7 +255,26 @@ if ask_yes_no "Install Neovim plugins now? (recommended)" true; then
     print_info "Installing plugins (this may take a minute)..."
     nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
     print_status "Plugins installed!"
-    print_status "Treesitter parsers will auto-install on first file open."
+
+    # Treesitter (main branch) does not auto-install parsers from a config
+    # table. Install them synchronously now so the first file open is clean.
+    if command -v tree-sitter &> /dev/null; then
+        print_info "Compiling treesitter parsers (this may take a few minutes)..."
+        nvim --headless -c "lua \
+            local ts = require('nvim-treesitter'); \
+            ts.setup({ install_dir = vim.fn.stdpath('data') .. '/site' }); \
+            ts.install({ \
+              'lua','vim','vimdoc','query','regex','bash', \
+              'html','css','javascript','typescript','tsx','json','yaml','toml', \
+              'markdown','markdown_inline', \
+              'python','go','rust','c','cpp', \
+              'dockerfile','diff','gitcommit','gitignore' \
+            }):wait(600000)" \
+            +qa 2>/dev/null || true
+        print_status "Treesitter parsers installed!"
+    else
+        print_warning "tree-sitter CLI not found; parsers will be installed on first nvim launch."
+    fi
 fi
 
 # =============================================================================
