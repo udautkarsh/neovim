@@ -1,6 +1,14 @@
 -- ============================================
--- Debugging (DAP) - VSCode-like debug workflow
+-- Debugging (DAP) — minimal defaults
 -- ============================================
+--
+-- Plugin: nvim-dap (https://github.com/mfussenegger/nvim-dap)
+-- Python: nvim-dap-python (https://github.com/mfussenegger/nvim-dap-python)
+-- UI:     nvim-dap-ui (https://github.com/rcarriga/nvim-dap-ui)
+--
+-- This config uses plugin defaults wherever possible. No font / zoom /
+-- resize logic. Use your terminal's normal Ctrl+- / Ctrl+= to change
+-- font size manually if needed.
 
 local function debug_python_file()
   local file = vim.fn.input("Python file: ", vim.fn.getcwd() .. "/", "file")
@@ -67,12 +75,7 @@ return {
       { "<leader>Dt", function() require("dap-python").test_method() end,      desc = "Debug: Test Method (Python)" },
       { "<leader>DT", function() require("dap-python").test_class() end,       desc = "Debug: Test Class (Python)" },
 
-      -- ------------------------------------------------------------------
       -- Fast shortcuts (no leader)
-      --   <A-d>    toggle breakpoint
-      --   <A-S-D>  toggle DAP UI  (Alt+Shift+D; Alt+d-d would block <A-d>
-      --            by timeoutlen — bad UX)
-      -- ------------------------------------------------------------------
       { "<A-d>",   function() require("dap").toggle_breakpoint() end, desc = "Debug: Toggle Breakpoint (Alt+d)" },
       { "<A-S-d>", function() require("dapui").toggle() end,          desc = "Debug: Toggle UI (Alt+Shift+D)" },
     },
@@ -80,238 +83,27 @@ return {
       local dap = require("dap")
       local dapui = require("dapui")
 
-      -- ------------------------------------------------------------------
-      -- Temporary font SHRINK during a debug session (whole terminal only)
-      --
-      -- Terminal Neovim cannot change font size per-window — the change
-      -- applies to the entire terminal/Neovide window, including your
-      -- code buffer. We make the font ~20% smaller when DAP starts so
-      -- the panels fit more data, then restore the original size when
-      -- the session ends.
-      --
-      -- Supported: Neovide, Kitty, Wezterm, Alacritty.
-      -- Plain gnome-terminal: use Ctrl+- / Ctrl+= manually while debugging.
-      -- Set `dap_zoom_enabled = false` to disable.
-      -- ------------------------------------------------------------------
-      local dap_zoom_enabled = true
+      -- Defaults for nvim-dap-ui and nvim-dap-virtual-text.
+      dapui.setup()
+      require("nvim-dap-virtual-text").setup()
 
-      -- 30% smaller — about three Ctrl+- presses on most terminals.
-      local SHRINK_FACTOR     = 0.60        -- Neovide / exact ratios (0.70 = 30%)
-      local SHRINK_DELTA_PT   = 3           -- absolute pt step for terminals
-      local SHRINK_KEY_PRESSES = 2          -- Ctrl+- presses via xdotool/wtype fallback
-
-      local dap_zoom = {
-        active        = false,
-        neovide_base  = nil,                -- for restore
-      }
-
-      local function dap_zoom_in()
-        if not dap_zoom_enabled or dap_zoom.active then
-          return
-        end
-        dap_zoom.active = true
-
-        if vim.g.neovide then
-          dap_zoom.neovide_base = vim.g.neovide_scale_factor or 1.0
-          vim.g.neovide_scale_factor = dap_zoom.neovide_base * SHRINK_FACTOR
-          return
-        end
-
-        if vim.env.KITTY_WINDOW_ID then
-          vim.fn.jobstart(
-            { "kitty", "@", "set-font-size", "-" .. SHRINK_DELTA_PT },
-            { detach = true }
-          )
-          return
-        end
-
-        if vim.env.WEZTERM_PANE then
-          for _ = 1, SHRINK_DELTA_PT do
-            vim.fn.jobstart(
-              { "wezterm", "cli", "adjust-window-action", "DecreaseFontSize" },
-              { detach = true }
-            )
-          end
-          return
-        end
-
-        if vim.env.ALACRITTY_WINDOW_ID then
-          vim.fn.jobstart(
-            { "alacritty", "msg", "-e", "DecreaseFontSize", tostring(SHRINK_DELTA_PT) .. ".0" },
-            { detach = true }
-          )
-          return
-        end
-
-        -- ----------------------------------------------------------------
-        -- Fallback: synthesise Ctrl+- key presses with xdotool (X11) or
-        -- wtype (Wayland). This is what makes auto-shrink work in
-        -- gnome-terminal / xterm / etc. — they have no API of their own,
-        -- but they always honour the Ctrl+- shortcut.
-        --
-        -- Requires: `xdotool` (X11) or `wtype` (Wayland).
-        --   sudo apt install xdotool   # or
-        --   sudo apt install wtype
-        -- ----------------------------------------------------------------
-        if vim.fn.executable("xdotool") == 1 then
-          for _ = 1, SHRINK_KEY_PRESSES do
-            vim.fn.jobstart({ "xdotool", "key", "--clearmodifiers", "ctrl+minus" }, { detach = true })
-          end
-          return
-        end
-
-        if vim.fn.executable("wtype") == 1 then
-          for _ = 1, SHRINK_KEY_PRESSES do
-            vim.fn.jobstart({ "wtype", "-M", "ctrl", "minus" }, { detach = true })
-          end
-        end
-      end
-
-      local function dap_zoom_out()
-        if not dap_zoom.active then
-          return
-        end
-        dap_zoom.active = false
-
-        if vim.g.neovide and dap_zoom.neovide_base then
-          vim.g.neovide_scale_factor = dap_zoom.neovide_base
-          dap_zoom.neovide_base = nil
-          return
-        end
-
-        if vim.env.KITTY_WINDOW_ID then
-          -- "set-font-size 0" resets kitty to its configured default.
-          vim.fn.jobstart({ "kitty", "@", "set-font-size", "0" }, { detach = true })
-          return
-        end
-
-        if vim.env.WEZTERM_PANE then
-          vim.fn.jobstart(
-            { "wezterm", "cli", "adjust-window-action", "ResetFontSize" },
-            { detach = true }
-          )
-          return
-        end
-
-        if vim.env.ALACRITTY_WINDOW_ID then
-          vim.fn.jobstart({ "alacritty", "msg", "-e", "ResetFontSize" }, { detach = true })
-          return
-        end
-
-        -- Fallback: send Ctrl+0 to reset font size to the terminal default.
-        if vim.fn.executable("xdotool") == 1 then
-          vim.fn.jobstart({ "xdotool", "key", "--clearmodifiers", "ctrl+0" }, { detach = true })
-          return
-        end
-
-        if vim.fn.executable("wtype") == 1 then
-          vim.fn.jobstart({ "wtype", "-M", "ctrl", "0" }, { detach = true })
-        end
-      end
-
-      -- ------------------------------------------------------------------
-      -- DAP UI layout
-      --
-      -- Tweak the numbers below to change panel sizes:
-      --   layouts[1].size           → width  of the left side panel (cols)
-      --   layouts[2].size           → height of the bottom panel    (rows)
-      --   layouts[*].elements[*].size  → fraction of that panel each
-      --                                   element gets (must sum to 1.0)
-      --
-      -- Note: in terminal Neovim, the FONT is controlled by your terminal
-      -- emulator (gnome-terminal / kitty / alacritty / wezterm / …), not
-      -- by Neovim. To get bigger text use the terminal's zoom shortcut
-      -- (Ctrl+= / Ctrl+Shift++ on most terminals) or change its font.
-      -- Inside Neovim we can only adjust spacing / window sizes.
-      -- ------------------------------------------------------------------
-      -- ------------------------------------------------------------------
-      -- nvim-dap-ui DEFAULTS (so you can tune from a known baseline).
-      -- These settings apply ONLY to the DAP UI windows — when no debug
-      -- session is running, none of these windows exist, so your normal
-      -- editor layout is untouched.
-      --
-      -- Common knobs to tweak:
-      --   layouts[1].size         → width of the left side panel (cols)
-      --   layouts[2].size         → height of the bottom panel (rows)
-      --   layouts[*].elements[*].size → fraction each element gets (Σ = 1.0)
-      -- ------------------------------------------------------------------
-      dapui.setup({
-        layouts = {
-          {
-            position = "left",
-            size = 40,              -- default width (cols)
-            elements = {
-              { id = "scopes",      size = 0.25 },
-              { id = "breakpoints", size = 0.25 },
-              { id = "stacks",      size = 0.25 },
-              { id = "watches",     size = 0.25 },
-            },
-          },
-          {
-            position = "bottom",
-            size = 10,              -- default height (rows)
-            elements = {
-              { id = "repl",    size = 0.5 },
-              { id = "console", size = 0.5 },
-            },
-          },
-        },
-        controls = {
-          enabled = true,
-          element = "repl",
-        },
-        floating = {
-          max_height = nil,
-          max_width  = nil,
-          border     = "single",
-          mappings   = { close = { "q", "<Esc>" } },
-        },
-        windows = { indent = 1 },
-        render  = {
-          max_type_length = nil,
-          max_value_lines = 100,
-          indent          = 1,
-        },
-      })
-
-      -- Per-buffer window options for DAP UI panels (less noisy).
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "dapui_scopes", "dapui_watches", "dapui_stacks",
-          "dapui_breakpoints", "dapui_console", "dap-repl",
-        },
-        callback = function()
-          vim.opt_local.number         = false
-          vim.opt_local.relativenumber = false
-          vim.opt_local.signcolumn     = "no"
-          vim.opt_local.wrap           = true       -- long values wrap
-          vim.opt_local.linebreak      = true
-        end,
-      })
-
-      require("nvim-dap-virtual-text").setup({
-        commented = true,           -- show as comments next to the code
-        virt_text_pos = "eol",      -- end of line (less cramped than inline)
-        all_frames = false,
-      })
       require("mason-nvim-dap").setup({
         automatic_installation = true,
         ensure_installed = { "python" },
       })
 
       -- ------------------------------------------------------------------
-      -- Resolve the Python that will run BOTH the DAP adapter and the
-      -- program being debugged (they must be the same process — there is
-      -- no way to split them with `launch` requests).
+      -- nvim-dap-python: resolve the project Python interpreter and make
+      -- sure debugpy is available in it. The adapter and the debugged
+      -- program must share the same Python — that's a hard requirement
+      -- of dap-python.
       --
       -- Strategy:
-      --   1. Resolve the project's Python via utils.get_python_path
-      --      (honours $VIRTUAL_ENV, local .venv, poetry, pipenv, …).
-      --   2. If that Python is inside a venv but debugpy is missing,
-      --      install debugpy into the venv automatically (uv > pip).
-      --   3. If the resolved Python is the SYSTEM python (no venv) and
-      --      debugpy is missing, switch the adapter to Mason's isolated
-      --      debugpy install instead of polluting the system Python.
+      --   1. Use utils.get_python_path to find the venv Python.
+      --   2. If debugpy is missing in a real venv → install it there
+      --      (uv pip if present, else pip).
+      --   3. If the resolved Python is the system one (no venv) and
+      --      debugpy is missing → fall back to Mason's debugpy.
       -- ------------------------------------------------------------------
       local function venv_root_for(python_path)
         local root = python_path
@@ -324,8 +116,8 @@ return {
       end
 
       local function has_debugpy(python_path)
-        local out = vim.fn.system({ python_path, "-c", "import debugpy" })
-        return vim.v.shell_error == 0, out
+        vim.fn.system({ python_path, "-c", "import debugpy" })
+        return vim.v.shell_error == 0
       end
 
       local function install_into_venv(python_path, on_done)
@@ -366,119 +158,87 @@ return {
       end
 
       local project_python = require("utils").get_python_path(vim.uv.cwd())
-      local adapter_python = project_python
-
-      -- Activate DAP with whichever interpreter we have right now; if we
-      -- need to switch to Mason debugpy below, re-call setup() then.
-      require("dap-python").setup(adapter_python)
+      require("dap-python").setup(project_python)
 
       vim.schedule(function()
-        local ok = has_debugpy(adapter_python)
-        if ok then return end
+        if has_debugpy(project_python) then return end
 
-        local venv = venv_root_for(adapter_python)
+        local venv = venv_root_for(project_python)
         if venv then
-          -- Inside a project venv → install debugpy there.
-          install_into_venv(adapter_python, function(success)
+          install_into_venv(project_python, function(success)
             if not success then
-              -- Fall back to Mason debugpy if available.
               local mason = mason_debugpy_python()
               if mason then
                 require("dap-python").setup(mason)
-                vim.notify(
-                  "Falling back to Mason debugpy: " .. mason,
-                  vim.log.levels.WARN,
-                  { title = "nvim-dap-python" }
-                )
+                vim.notify("Falling back to Mason debugpy: " .. mason,
+                  vim.log.levels.WARN, { title = "nvim-dap-python" })
               end
             end
           end)
         else
-          -- System Python (no venv) → don't install globally; use Mason.
           local mason = mason_debugpy_python()
           if mason then
             require("dap-python").setup(mason)
             vim.notify(
               ("No venv detected; using Mason debugpy adapter:\n%s"):format(mason),
-              vim.log.levels.INFO,
-              { title = "nvim-dap-python" }
+              vim.log.levels.INFO, { title = "nvim-dap-python" }
             )
           else
             vim.notify(
               "debugpy is missing and no Mason debugpy available.\nRun :MasonInstall debugpy",
-              vim.log.levels.ERROR,
-              { title = "nvim-dap-python", timeout = false }
+              vim.log.levels.ERROR, { title = "nvim-dap-python", timeout = false }
             )
           end
         end
       end)
 
       -- ------------------------------------------------------------------
-      -- DAP UI lifecycle
-      --
-      -- Open the UI on `event_initialized` (session ready) and CLOSE it
-      -- automatically on terminate / exit so the editor returns to your
-      -- normal layout the moment debugging ends.
-      --
-      -- Error messages do NOT depend on the UI staying open — they are
-      -- captured separately (see "Persist DAP errors" below) and surfaced
-      -- via vim.notify (Snacks history at <Space>un) plus :DapErrors.
+      -- DAP UI lifecycle:
+      --   - open on attach/launch
+      --   - close automatically only on clean exit
+      --   - keep open on errors so you can inspect output
       -- ------------------------------------------------------------------
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dap_zoom_in()
+      local session_state = { had_error = false }
+
+      dap.listeners.before.attach.dapui_config = function()
+        session_state.had_error = false
         dapui.open()
       end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close()
-        dap_zoom_out()
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close()
-        dap_zoom_out()
+      dap.listeners.before.launch.dapui_config = function()
+        session_state.had_error = false
+        dapui.open()
       end
 
-      -- ------------------------------------------------------------------
-      -- Persist DAP errors
-      --
-      -- Capture stdout/stderr from the adapter and the debugged program
-      -- into the notifier history. nvim-dap uses vim.notify; with Snacks
-      -- notifier you can review past errors with <Space>un (history).
-      -- We also keep the most recent error in a buffer-backed log so it
-      -- can be re-opened with :DapErrors.
-      -- ------------------------------------------------------------------
-      local dap_errors = {}
-
-      dap.listeners.after.event_output["dap_error_capture"] = function(_, body)
-        if body and body.category == "stderr" and body.output and body.output ~= "" then
-          table.insert(dap_errors, body.output)
-          vim.notify(body.output, vim.log.levels.ERROR, { title = "DAP stderr" })
-        end
-      end
-
-      -- If the adapter exits non-zero, surface it loudly and keep the
-      -- message in history. The UI stays open so you can read scrollback.
-      dap.listeners.after.event_exited["dap_error_summary"] = function(_, body)
+      dap.listeners.before.event_exited.dapui_track_error = function(_, body)
         if body and body.exitCode and body.exitCode ~= 0 then
-          local msg = ("DAP session exited with code %d. Run :DapShowLog or :DapErrors for details.")
-            :format(body.exitCode)
-          table.insert(dap_errors, msg)
-          vim.notify(msg, vim.log.levels.ERROR, { title = "DAP", timeout = false })
+          session_state.had_error = true
         end
       end
 
-      -- Command to re-open the most recent errors in a scratch buffer.
-      vim.api.nvim_create_user_command("DapErrors", function()
-        if #dap_errors == 0 then
-          vim.notify("No DAP errors captured this session.", vim.log.levels.INFO)
+      dap.listeners.after.event_output.dapui_track_stderr = function(_, body)
+        if body and body.category == "stderr" and body.output and body.output ~= "" then
+          session_state.had_error = true
+        end
+      end
+
+      local function maybe_close_ui()
+        if session_state.had_error then
+          vim.notify(
+            "DAP ended with errors. UI kept open for inspection; close with <leader>Du.",
+            vim.log.levels.WARN,
+            { title = "DAP" }
+          )
           return
         end
-        vim.cmd("botright new")
-        vim.bo.buftype = "nofile"
-        vim.bo.bufhidden = "wipe"
-        vim.bo.swapfile = false
-        vim.api.nvim_buf_set_name(0, "DAP Errors")
-        vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(table.concat(dap_errors, "\n"), "\n"))
-      end, { desc = "Show captured DAP errors" })
+        dapui.close()
+      end
+
+      dap.listeners.before.event_terminated.dapui_config = function()
+        vim.schedule(maybe_close_ui)
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        vim.schedule(maybe_close_ui)
+      end
 
       -- which-key labels for the Debug group
       pcall(function()
