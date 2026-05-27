@@ -22,7 +22,7 @@ return {
               { id = "stacks", size = 0.25 },
               { id = "breakpoints", size = 0.20 },
             },
-            size = 60,
+            size = 45,
             position = "left",
           },
           { -- Bottom panel
