@@ -80,8 +80,220 @@ return {
       local dap = require("dap")
       local dapui = require("dapui")
 
-      dapui.setup()
-      require("nvim-dap-virtual-text").setup()
+      -- ------------------------------------------------------------------
+      -- Temporary font SHRINK during a debug session (whole terminal only)
+      --
+      -- Terminal Neovim cannot change font size per-window — the change
+      -- applies to the entire terminal/Neovide window, including your
+      -- code buffer. We make the font ~20% smaller when DAP starts so
+      -- the panels fit more data, then restore the original size when
+      -- the session ends.
+      --
+      -- Supported: Neovide, Kitty, Wezterm, Alacritty.
+      -- Plain gnome-terminal: use Ctrl+- / Ctrl+= manually while debugging.
+      -- Set `dap_zoom_enabled = false` to disable.
+      -- ------------------------------------------------------------------
+      local dap_zoom_enabled = true
+
+      -- 30% smaller — about three Ctrl+- presses on most terminals.
+      local SHRINK_FACTOR     = 0.60        -- Neovide / exact ratios (0.70 = 30%)
+      local SHRINK_DELTA_PT   = 3           -- absolute pt step for terminals
+      local SHRINK_KEY_PRESSES = 2          -- Ctrl+- presses via xdotool/wtype fallback
+
+      local dap_zoom = {
+        active        = false,
+        neovide_base  = nil,                -- for restore
+      }
+
+      local function dap_zoom_in()
+        if not dap_zoom_enabled or dap_zoom.active then
+          return
+        end
+        dap_zoom.active = true
+
+        if vim.g.neovide then
+          dap_zoom.neovide_base = vim.g.neovide_scale_factor or 1.0
+          vim.g.neovide_scale_factor = dap_zoom.neovide_base * SHRINK_FACTOR
+          return
+        end
+
+        if vim.env.KITTY_WINDOW_ID then
+          vim.fn.jobstart(
+            { "kitty", "@", "set-font-size", "-" .. SHRINK_DELTA_PT },
+            { detach = true }
+          )
+          return
+        end
+
+        if vim.env.WEZTERM_PANE then
+          for _ = 1, SHRINK_DELTA_PT do
+            vim.fn.jobstart(
+              { "wezterm", "cli", "adjust-window-action", "DecreaseFontSize" },
+              { detach = true }
+            )
+          end
+          return
+        end
+
+        if vim.env.ALACRITTY_WINDOW_ID then
+          vim.fn.jobstart(
+            { "alacritty", "msg", "-e", "DecreaseFontSize", tostring(SHRINK_DELTA_PT) .. ".0" },
+            { detach = true }
+          )
+          return
+        end
+
+        -- ----------------------------------------------------------------
+        -- Fallback: synthesise Ctrl+- key presses with xdotool (X11) or
+        -- wtype (Wayland). This is what makes auto-shrink work in
+        -- gnome-terminal / xterm / etc. — they have no API of their own,
+        -- but they always honour the Ctrl+- shortcut.
+        --
+        -- Requires: `xdotool` (X11) or `wtype` (Wayland).
+        --   sudo apt install xdotool   # or
+        --   sudo apt install wtype
+        -- ----------------------------------------------------------------
+        if vim.fn.executable("xdotool") == 1 then
+          for _ = 1, SHRINK_KEY_PRESSES do
+            vim.fn.jobstart({ "xdotool", "key", "--clearmodifiers", "ctrl+minus" }, { detach = true })
+          end
+          return
+        end
+
+        if vim.fn.executable("wtype") == 1 then
+          for _ = 1, SHRINK_KEY_PRESSES do
+            vim.fn.jobstart({ "wtype", "-M", "ctrl", "minus" }, { detach = true })
+          end
+        end
+      end
+
+      local function dap_zoom_out()
+        if not dap_zoom.active then
+          return
+        end
+        dap_zoom.active = false
+
+        if vim.g.neovide and dap_zoom.neovide_base then
+          vim.g.neovide_scale_factor = dap_zoom.neovide_base
+          dap_zoom.neovide_base = nil
+          return
+        end
+
+        if vim.env.KITTY_WINDOW_ID then
+          -- "set-font-size 0" resets kitty to its configured default.
+          vim.fn.jobstart({ "kitty", "@", "set-font-size", "0" }, { detach = true })
+          return
+        end
+
+        if vim.env.WEZTERM_PANE then
+          vim.fn.jobstart(
+            { "wezterm", "cli", "adjust-window-action", "ResetFontSize" },
+            { detach = true }
+          )
+          return
+        end
+
+        if vim.env.ALACRITTY_WINDOW_ID then
+          vim.fn.jobstart({ "alacritty", "msg", "-e", "ResetFontSize" }, { detach = true })
+          return
+        end
+
+        -- Fallback: send Ctrl+0 to reset font size to the terminal default.
+        if vim.fn.executable("xdotool") == 1 then
+          vim.fn.jobstart({ "xdotool", "key", "--clearmodifiers", "ctrl+0" }, { detach = true })
+          return
+        end
+
+        if vim.fn.executable("wtype") == 1 then
+          vim.fn.jobstart({ "wtype", "-M", "ctrl", "0" }, { detach = true })
+        end
+      end
+
+      -- ------------------------------------------------------------------
+      -- DAP UI layout
+      --
+      -- Tweak the numbers below to change panel sizes:
+      --   layouts[1].size           → width  of the left side panel (cols)
+      --   layouts[2].size           → height of the bottom panel    (rows)
+      --   layouts[*].elements[*].size  → fraction of that panel each
+      --                                   element gets (must sum to 1.0)
+      --
+      -- Note: in terminal Neovim, the FONT is controlled by your terminal
+      -- emulator (gnome-terminal / kitty / alacritty / wezterm / …), not
+      -- by Neovim. To get bigger text use the terminal's zoom shortcut
+      -- (Ctrl+= / Ctrl+Shift++ on most terminals) or change its font.
+      -- Inside Neovim we can only adjust spacing / window sizes.
+      -- ------------------------------------------------------------------
+      -- ------------------------------------------------------------------
+      -- nvim-dap-ui DEFAULTS (so you can tune from a known baseline).
+      -- These settings apply ONLY to the DAP UI windows — when no debug
+      -- session is running, none of these windows exist, so your normal
+      -- editor layout is untouched.
+      --
+      -- Common knobs to tweak:
+      --   layouts[1].size         → width of the left side panel (cols)
+      --   layouts[2].size         → height of the bottom panel (rows)
+      --   layouts[*].elements[*].size → fraction each element gets (Σ = 1.0)
+      -- ------------------------------------------------------------------
+      dapui.setup({
+        layouts = {
+          {
+            position = "left",
+            size = 40,              -- default width (cols)
+            elements = {
+              { id = "scopes",      size = 0.25 },
+              { id = "breakpoints", size = 0.25 },
+              { id = "stacks",      size = 0.25 },
+              { id = "watches",     size = 0.25 },
+            },
+          },
+          {
+            position = "bottom",
+            size = 10,              -- default height (rows)
+            elements = {
+              { id = "repl",    size = 0.5 },
+              { id = "console", size = 0.5 },
+            },
+          },
+        },
+        controls = {
+          enabled = true,
+          element = "repl",
+        },
+        floating = {
+          max_height = nil,
+          max_width  = nil,
+          border     = "single",
+          mappings   = { close = { "q", "<Esc>" } },
+        },
+        windows = { indent = 1 },
+        render  = {
+          max_type_length = nil,
+          max_value_lines = 100,
+          indent          = 1,
+        },
+      })
+
+      -- Per-buffer window options for DAP UI panels (less noisy).
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "dapui_scopes", "dapui_watches", "dapui_stacks",
+          "dapui_breakpoints", "dapui_console", "dap-repl",
+        },
+        callback = function()
+          vim.opt_local.number         = false
+          vim.opt_local.relativenumber = false
+          vim.opt_local.signcolumn     = "no"
+          vim.opt_local.wrap           = true       -- long values wrap
+          vim.opt_local.linebreak      = true
+        end,
+      })
+
+      require("nvim-dap-virtual-text").setup({
+        commented = true,           -- show as comments next to the code
+        virt_text_pos = "eol",      -- end of line (less cramped than inline)
+        all_frames = false,
+      })
       require("mason-nvim-dap").setup({
         automatic_installation = true,
         ensure_installed = { "python" },
@@ -204,13 +416,25 @@ return {
       -- ------------------------------------------------------------------
       -- DAP UI lifecycle
       --
-      -- We open the UI on `event_initialized` (session ready), but we do
-      -- NOT auto-close it on terminate/exit. Otherwise an error in the
-      -- adapter or program would flicker the windows and you'd never see
-      -- the message. Close it manually with <Space>Du or <A-S-d>.
+      -- Open the UI on `event_initialized` (session ready) and CLOSE it
+      -- automatically on terminate / exit so the editor returns to your
+      -- normal layout the moment debugging ends.
+      --
+      -- Error messages do NOT depend on the UI staying open — they are
+      -- captured separately (see "Persist DAP errors" below) and surfaced
+      -- via vim.notify (Snacks history at <Space>un) plus :DapErrors.
       -- ------------------------------------------------------------------
       dap.listeners.after.event_initialized["dapui_config"] = function()
+        dap_zoom_in()
         dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+        dap_zoom_out()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+        dap_zoom_out()
       end
 
       -- ------------------------------------------------------------------

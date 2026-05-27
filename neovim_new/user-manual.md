@@ -608,6 +608,82 @@ configuration picker (`<Space>DL`).
 
 ---
 
+### Making the DAP panels more spacious
+
+The default `nvim-dap-ui` panels are cramped. This config sets explicit
+sizes in `lua/plugins/dap.lua`:
+
+| Knob | Default in this config | What it controls |
+|------|------------------------|------------------|
+| `layouts[1].size` | `40` columns | Width of the left side panel (scopes / breakpoints / stacks / watches) |
+| `layouts[2].size` | `10` rows | Height of the bottom panel (REPL / console) |
+| `elements[*].size` | `0.25` × 4 (left) / `0.5` × 2 (bottom) | How each panel divides between its elements; must sum to **1.0** |
+| `windows.indent` / `render.indent` | `1` | Indentation in tree views |
+| `floating.border` | `"single"` | Border style of floating widgets (e.g. `<Space>Dp` hover) |
+
+> **Editor untouched when not debugging.** These sizes apply *only* to
+> the DAP UI windows. They appear when a debug session starts and are
+> closed automatically when the session terminates, so your editing
+> layout returns to exactly what it was before.
+
+Change a number, save the file, then run `:Lazy reload nvim-dap` (or
+restart Neovim) to see it. You can also nudge sizes at runtime with
+the standard `Ctrl+w` window-resize keys (`<C-w>>`, `<C-w><`, `<C-w>+`,
+`<C-w>-`, or `Ctrl + Shift + Arrow` from the main keymaps).
+
+#### Fonts (terminal Neovim)
+
+The **font is set by your terminal emulator**, not by Neovim. Neovim
+cannot make *only* the DAP panels use a bigger font — in a terminal,
+font size is always **whole-window**.
+
+**Automatic temporary font SHRINK (this config):**
+
+When a debug session starts, font size is reduced by ~30 % for the
+whole window so the DAP panels fit more data. When the session ends,
+the original size is restored.
+
+| Environment | Shrink action | Restore action |
+|-------------|---------------|----------------|
+| **Neovide** | `vim.g.neovide_scale_factor × 0.70` (exact 30 %) | restore saved factor |
+| **Kitty** | `kitty @ set-font-size -3` | `set-font-size 0` |
+| **Wezterm** | `DecreaseFontSize` × 3 | `ResetFontSize` |
+| **Alacritty** | `DecreaseFontSize 3.0` | `ResetFontSize` |
+| **gnome-terminal / xterm / …** (X11) | `xdotool key ctrl+minus` × 2 | `xdotool key ctrl+0` |
+| **gnome-terminal / foot / …** (Wayland) | `wtype -M ctrl minus` × 2 | `wtype -M ctrl 0` |
+
+Tweak in `lua/plugins/dap.lua` (top of the `config` function):
+
+```lua
+local dap_zoom_enabled    = true   -- false to disable entirely
+local SHRINK_FACTOR       = 0.70   -- Neovide exact ratio (0.70 = 30 % smaller)
+local SHRINK_DELTA_PT     = 3      -- absolute step for terminals (in points)
+local SHRINK_KEY_PRESSES  = 2      -- Ctrl+- presses via xdotool / wtype
+```
+
+Install the key-injection helpers (only needed for gnome-terminal and
+similar emulators without a CLI of their own):
+
+```bash
+# Both at once — the config picks the right one per session at runtime.
+sudo apt install xdotool wtype
+```
+
+`scripts/install-neovim.sh` installs both during setup. The runtime
+picks the appropriate one:
+
+- **X11** sessions → `xdotool`
+- **Wayland** sessions → `wtype`
+
+Manual zoom while debugging (any terminal):
+
+- `Ctrl + -` — smaller
+- `Ctrl + =` / `Ctrl + Shift + +` — bigger
+
+If you want Neovim itself to control the font (`guifont`), use
+[Neovide](https://github.com/neovide/neovide). Inside plain terminal
+Neovim, `:set guifont=...` is a no-op.
+
 ### Useful DAP commands
 
 | Command | Purpose |

@@ -222,6 +222,21 @@ fi
 # =============================================================================
 
 echo ""
+if ask_yes_no "Install xdotool + wtype? (lets nvim-dap auto-shrink the font in gnome-terminal etc.)" true; then
+    # Install both so the runtime picks the right one per session:
+    #   - X11 sessions use xdotool
+    #   - Wayland sessions use wtype
+    if [ "$XDG_SESSION_TYPE" = "wayland" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+        print_info "Wayland session detected (will be used at runtime)."
+    else
+        print_info "X11 session detected (will be used at runtime)."
+    fi
+    print_info "Installing both xdotool (X11) and wtype (Wayland)..."
+    sudo apt install -y xdotool wtype
+    print_status "Key-injection helpers installed (xdotool + wtype)."
+fi
+
+echo ""
 if ask_yes_no "Install debugpy (Python debug adapter) at system level as a fallback?" true; then
     if apt-cache show python3-debugpy >/dev/null 2>&1; then
         print_info "Installing python3-debugpy via apt..."
